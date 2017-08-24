@@ -1,0 +1,30 @@
+# Command is some binary installed on the underlying container.
+# It's up to the lexicon author to ensure these commands are available by configuring the container in the dockerfile.
+
+endpoints:
+  parse-project:
+    command: php
+    args:
+      - '/parse-project.php'
+      - '${trunkKey}'
+      - '${resourceDir}'
+  changed-files:
+    command: php
+    args:
+      - '/parse-project.php'
+      - '${trunkKey}'
+      - '${resourceDir}'
+      - '${changedFiles}'  # has to be last arg as it will be a list ie. a.php b.php dir/c.php
+  list-facts:
+    command: cat
+    args:
+      - '/list-facts.json'
+  list-setup-steps:
+    command: cat
+    args:
+      - '/setup-steps.json'
+  replace-properties:
+    command: php
+    args:
+      - '/replace-properties.php'
+      - '${fact}'

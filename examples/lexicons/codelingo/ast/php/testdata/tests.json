@@ -1,0 +1,1086 @@
+{
+  "Tests": [
+    {
+      "Steps": [
+        {
+          "ResourceAction": {
+            "Name": "loadTest",
+            "Args": {
+              "name": "testbasic"
+            }
+          },
+          "ParseActions": [
+            {
+              "Name": "parseSrc",
+              "Args": {}
+            }
+          ]
+        }
+      ],
+      "Endpoints": {
+        "/parse/parse": {
+          "Input": {},
+          "Output": {
+            "Code": 200,
+            "Data": {
+              "common_kind": "unknown",
+              "kind": {
+                "namespace": "php",
+                "kind": "files"
+              },
+              "children": [
+                {
+                  "common_kind": "unknown",
+                  "kind": {
+                    "namespace": "php",
+                    "kind": "file"
+                  },
+                  "children": [
+                    {
+                      "common_kind": "unknown",
+                      "kind": {
+                        "namespace": "php",
+                        "kind": "file"
+                      },
+                      "children": [
+                        {
+                          "common_kind": "unknown",
+                          "kind": {
+                            "namespace": "php",
+                            "kind": "expr_include"
+                          },
+                          "children": [
+                            {
+                              "common_kind": "unknown",
+                              "kind": {
+                                "namespace": "php",
+                                "kind": "expr_binaryop_concat"
+                              },
+                              "children": [
+                                {
+                                  "common_kind": "unknown",
+                                  "kind": {
+                                    "namespace": "php",
+                                    "kind": "scalar_magicconst_dir"
+                                  },
+                                  "children": [
+                                  ],
+                                  "properties": {
+                                    "end_position": {
+                                      "column": 20,
+                                      "filename": "\/a.php",
+                                      "row": 3
+                                    },
+                                    "start_position": {
+                                      "column": 14,
+                                      "filename": "\/a.php",
+                                      "row": 3
+                                    }
+                                  }
+                                },
+                                {
+                                  "common_kind": "unknown",
+                                  "kind": {
+                                    "namespace": "php",
+                                    "kind": "scalar_string"
+                                  },
+                                  "children": [
+                                  ],
+                                  "properties": {
+                                    "end_position": {
+                                      "column": 29,
+                                      "filename": "\/a.php",
+                                      "row": 3
+                                    },
+                                    "kind": "1",
+                                    "start_position": {
+                                      "column": 22,
+                                      "filename": "\/a.php",
+                                      "row": 3
+                                    },
+                                    "value": "\/b.php"
+                                  }
+                                }
+                              ],
+                              "properties": {
+                                "end_position": {
+                                  "column": 29,
+                                  "filename": "\/a.php",
+                                  "row": 3
+                                },
+                                "start_position": {
+                                  "column": 14,
+                                  "filename": "\/a.php",
+                                  "row": 3
+                                }
+                              }
+                            }
+                          ],
+                          "properties": {
+                            "end_position": {
+                              "column": 29,
+                              "filename": "\/a.php",
+                              "row": 3
+                            },
+                            "start_position": {
+                              "column": 1,
+                              "filename": "\/a.php",
+                              "row": 3
+                            },
+                            "type": "TYPE_REQURE_ONCE (4)"
+                          }
+                        },
+                        {
+                          "common_kind": "unknown",
+                          "kind": {
+                            "namespace": "php",
+                            "kind": "stmt_class"
+                          },
+                          "children": [
+                            {
+                              "common_kind": "unknown",
+                              "kind": {
+                                "namespace": "php",
+                                "kind": "stmt_property"
+                              },
+                              "children": [
+                                {
+                                  "common_kind": "unknown",
+                                  "kind": {
+                                    "namespace": "php",
+                                    "kind": "stmt_propertyproperty"
+                                  },
+                                  "children": [
+                                    {
+                                      "common_kind": "unknown",
+                                      "kind": {
+                                        "namespace": "php",
+                                        "kind": "scalar_lnumber"
+                                      },
+                                      "children": [
+                                      ],
+                                      "properties": {
+                                        "end_position": {
+                                          "column": 27,
+                                          "filename": "\/a.php",
+                                          "row": 6
+                                        },
+                                        "kind": "10",
+                                        "start_position": {
+                                          "column": 26,
+                                          "filename": "\/a.php",
+                                          "row": 6
+                                        },
+                                        "value": "17"
+                                      }
+                                    }
+                                  ],
+                                  "properties": {
+                                    "end_position": {
+                                      "column": 27,
+                                      "filename": "\/a.php",
+                                      "row": 6
+                                    },
+                                    "name": "num",
+                                    "start_position": {
+                                      "column": 19,
+                                      "filename": "\/a.php",
+                                      "row": 6
+                                    }
+                                  }
+                                }
+                              ],
+                              "properties": {
+                                "end_position": {
+                                  "column": 28,
+                                  "filename": "\/a.php",
+                                  "row": 6
+                                },
+                                "flags": "MODIFIER_PUBLIC | MODIFIER_STATIC (9)",
+                                "props": [
+                                  {
+                                    "attributes": {
+                                      "endFilePos": 75,
+                                      "endLine": 6,
+                                      "startFilePos": 67,
+                                      "startLine": 6
+                                    },
+                                    "default": {
+                                      "attributes": {
+                                        "endFilePos": 75,
+                                        "endLine": 6,
+                                        "kind": 10,
+                                        "startFilePos": 74,
+                                        "startLine": 6
+                                      },
+                                      "nodeType": "Scalar_LNumber",
+                                      "value": 17
+                                    },
+                                    "name": "num",
+                                    "nodeType": "Stmt_PropertyProperty"
+                                  }
+                                ],
+                                "start_position": {
+                                  "column": 5,
+                                  "filename": "\/a.php",
+                                  "row": 6
+                                }
+                              }
+                            }
+                          ],
+                          "properties": {
+                            "end_position": {
+                              "column": 1,
+                              "filename": "\/a.php",
+                              "row": 7
+                            },
+                            "flags": 0,
+                            "implements": [
+                            ],
+                            "name": "A",
+                            "start_position": {
+                              "column": 1,
+                              "filename": "\/a.php",
+                              "row": 5
+                            },
+                            "stmts": [
+                              {
+                                "attributes": {
+                                  "endFilePos": 76,
+                                  "endLine": 6,
+                                  "startFilePos": 53,
+                                  "startLine": 6
+                                },
+                                "flags": 9,
+                                "nodeType": "Stmt_Property",
+                                "props": [
+                                  {
+                                    "attributes": {
+                                      "endFilePos": 75,
+                                      "endLine": 6,
+                                      "startFilePos": 67,
+                                      "startLine": 6
+                                    },
+                                    "default": {
+                                      "attributes": {
+                                        "endFilePos": 75,
+                                        "endLine": 6,
+                                        "kind": 10,
+                                        "startFilePos": 74,
+                                        "startLine": 6
+                                      },
+                                      "nodeType": "Scalar_LNumber",
+                                      "value": 17
+                                    },
+                                    "name": "num",
+                                    "nodeType": "Stmt_PropertyProperty"
+                                  }
+                                ],
+                                "type": 9
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "common_kind": "unknown",
+                          "kind": {
+                            "namespace": "php",
+                            "kind": "expr_assign"
+                          },
+                          "children": [
+                            {
+                              "common_kind": "unknown",
+                              "kind": {
+                                "namespace": "php",
+                                "kind": "expr_variable"
+                              },
+                              "children": [
+                              ],
+                              "properties": {
+                                "end_position": {
+                                  "column": 2,
+                                  "filename": "\/a.php",
+                                  "row": 9
+                                },
+                                "name": "a",
+                                "start_position": {
+                                  "column": 1,
+                                  "filename": "\/a.php",
+                                  "row": 9
+                                }
+                              }
+                            },
+                            {
+                              "common_kind": "unknown",
+                              "kind": {
+                                "namespace": "php",
+                                "kind": "expr_staticpropertyfetch"
+                              },
+                              "children": [
+                                {
+                                  "common_kind": "unknown",
+                                  "kind": {
+                                    "namespace": "php",
+                                    "kind": "name_fullyqualified"
+                                  },
+                                  "children": [
+                                  ],
+                                  "properties": {
+                                    "end_position": {
+                                      "column": 6,
+                                      "filename": "\/a.php",
+                                      "row": 9
+                                    },
+                                    "parts": [
+                                      "A"
+                                    ],
+                                    "start_position": {
+                                      "column": 6,
+                                      "filename": "\/a.php",
+                                      "row": 9
+                                    }
+                                  }
+                                }
+                              ],
+                              "properties": {
+                                "end_position": {
+                                  "column": 12,
+                                  "filename": "\/a.php",
+                                  "row": 9
+                                },
+                                "name": "num",
+                                "start_position": {
+                                  "column": 6,
+                                  "filename": "\/a.php",
+                                  "row": 9
+                                }
+                              }
+                            }
+                          ],
+                          "properties": {
+                            "end_position": {
+                              "column": 12,
+                              "filename": "\/a.php",
+                              "row": 9
+                            },
+                            "start_position": {
+                              "column": 1,
+                              "filename": "\/a.php",
+                              "row": 9
+                            }
+                          }
+                        },
+                        {
+                          "common_kind": "unknown",
+                          "kind": {
+                            "namespace": "php",
+                            "kind": "expr_assign"
+                          },
+                          "children": [
+                            {
+                              "common_kind": "unknown",
+                              "kind": {
+                                "namespace": "php",
+                                "kind": "expr_variable"
+                              },
+                              "children": [
+                              ],
+                              "properties": {
+                                "end_position": {
+                                  "column": 2,
+                                  "filename": "\/a.php",
+                                  "row": 10
+                                },
+                                "name": "b",
+                                "start_position": {
+                                  "column": 1,
+                                  "filename": "\/a.php",
+                                  "row": 10
+                                }
+                              }
+                            },
+                            {
+                              "common_kind": "unknown",
+                              "kind": {
+                                "namespace": "php",
+                                "kind": "expr_staticpropertyfetch"
+                              },
+                              "children": [
+                                {
+                                  "common_kind": "unknown",
+                                  "kind": {
+                                    "namespace": "php",
+                                    "kind": "name_fullyqualified"
+                                  },
+                                  "children": [
+                                  ],
+                                  "properties": {
+                                    "end_position": {
+                                      "column": 6,
+                                      "filename": "\/a.php",
+                                      "row": 10
+                                    },
+                                    "parts": [
+                                      "B"
+                                    ],
+                                    "start_position": {
+                                      "column": 6,
+                                      "filename": "\/a.php",
+                                      "row": 10
+                                    }
+                                  }
+                                }
+                              ],
+                              "properties": {
+                                "end_position": {
+                                  "column": 12,
+                                  "filename": "\/a.php",
+                                  "row": 10
+                                },
+                                "name": "num",
+                                "start_position": {
+                                  "column": 6,
+                                  "filename": "\/a.php",
+                                  "row": 10
+                                }
+                              }
+                            }
+                          ],
+                          "properties": {
+                            "end_position": {
+                              "column": 12,
+                              "filename": "\/a.php",
+                              "row": 10
+                            },
+                            "start_position": {
+                              "column": 1,
+                              "filename": "\/a.php",
+                              "row": 10
+                            }
+                          }
+                        },
+                        {
+                          "common_kind": "unknown",
+                          "kind": {
+                            "namespace": "php",
+                            "kind": "expr_assign"
+                          },
+                          "children": [
+                            {
+                              "common_kind": "unknown",
+                              "kind": {
+                                "namespace": "php",
+                                "kind": "expr_variable"
+                              },
+                              "children": [
+                              ],
+                              "properties": {
+                                "end_position": {
+                                  "column": 2,
+                                  "filename": "\/a.php",
+                                  "row": 11
+                                },
+                                "name": "c",
+                                "start_position": {
+                                  "column": 1,
+                                  "filename": "\/a.php",
+                                  "row": 11
+                                }
+                              }
+                            },
+                            {
+                              "common_kind": "unknown",
+                              "kind": {
+                                "namespace": "php",
+                                "kind": "scalar_lnumber"
+                              },
+                              "children": [
+                              ],
+                              "properties": {
+                                "end_position": {
+                                  "column": 6,
+                                  "filename": "\/a.php",
+                                  "row": 11
+                                },
+                                "kind": "10",
+                                "start_position": {
+                                  "column": 6,
+                                  "filename": "\/a.php",
+                                  "row": 11
+                                },
+                                "value": "5"
+                              }
+                            }
+                          ],
+                          "properties": {
+                            "end_position": {
+                              "column": 6,
+                              "filename": "\/a.php",
+                              "row": 11
+                            },
+                            "start_position": {
+                              "column": 1,
+                              "filename": "\/a.php",
+                              "row": 11
+                            }
+                          }
+                        },
+                        {
+                          "common_kind": "unknown",
+                          "kind": {
+                            "namespace": "php",
+                            "kind": "expr_assign"
+                          },
+                          "children": [
+                            {
+                              "common_kind": "unknown",
+                              "kind": {
+                                "namespace": "php",
+                                "kind": "expr_variable"
+                              },
+                              "children": [
+                              ],
+                              "properties": {
+                                "end_position": {
+                                  "column": 2,
+                                  "filename": "\/a.php",
+                                  "row": 12
+                                },
+                                "name": "d",
+                                "start_position": {
+                                  "column": 1,
+                                  "filename": "\/a.php",
+                                  "row": 12
+                                }
+                              }
+                            },
+                            {
+                              "common_kind": "unknown",
+                              "kind": {
+                                "namespace": "php",
+                                "kind": "expr_variable"
+                              },
+                              "children": [
+                              ],
+                              "properties": {
+                                "end_position": {
+                                  "column": 10,
+                                  "filename": "\/a.php",
+                                  "row": 12
+                                },
+                                "name": "bnum",
+                                "start_position": {
+                                  "column": 6,
+                                  "filename": "\/a.php",
+                                  "row": 12
+                                }
+                              }
+                            }
+                          ],
+                          "properties": {
+                            "end_position": {
+                              "column": 10,
+                              "filename": "\/a.php",
+                              "row": 12
+                            },
+                            "start_position": {
+                              "column": 1,
+                              "filename": "\/a.php",
+                              "row": 12
+                            }
+                          }
+                        },
+                        {
+                          "common_kind": "unknown",
+                          "kind": {
+                            "namespace": "php",
+                            "kind": "stmt_class"
+                          },
+                          "children": [
+                            {
+                              "common_kind": "unknown",
+                              "kind": {
+                                "namespace": "php",
+                                "kind": "stmt_property"
+                              },
+                              "children": [
+                                {
+                                  "common_kind": "unknown",
+                                  "kind": {
+                                    "namespace": "php",
+                                    "kind": "stmt_propertyproperty"
+                                  },
+                                  "children": [
+                                    {
+                                      "common_kind": "unknown",
+                                      "kind": {
+                                        "namespace": "php",
+                                        "kind": "scalar_lnumber"
+                                      },
+                                      "children": [
+                                      ],
+                                      "properties": {
+                                        "end_position": {
+                                          "column": 26,
+                                          "filename": "\/a.php",
+                                          "row": 15
+                                        },
+                                        "kind": "10",
+                                        "start_position": {
+                                          "column": 26,
+                                          "filename": "\/a.php",
+                                          "row": 15
+                                        },
+                                        "value": "4"
+                                      }
+                                    }
+                                  ],
+                                  "properties": {
+                                    "end_position": {
+                                      "column": 26,
+                                      "filename": "\/a.php",
+                                      "row": 15
+                                    },
+                                    "name": "num",
+                                    "start_position": {
+                                      "column": 19,
+                                      "filename": "\/a.php",
+                                      "row": 15
+                                    }
+                                  }
+                                }
+                              ],
+                              "properties": {
+                                "end_position": {
+                                  "column": 27,
+                                  "filename": "\/a.php",
+                                  "row": 15
+                                },
+                                "flags": "MODIFIER_PUBLIC | MODIFIER_STATIC (9)",
+                                "props": [
+                                  {
+                                    "attributes": {
+                                      "endFilePos": 165,
+                                      "endLine": 15,
+                                      "startFilePos": 158,
+                                      "startLine": 15
+                                    },
+                                    "default": {
+                                      "attributes": {
+                                        "endFilePos": 165,
+                                        "endLine": 15,
+                                        "kind": 10,
+                                        "startFilePos": 165,
+                                        "startLine": 15
+                                      },
+                                      "nodeType": "Scalar_LNumber",
+                                      "value": 4
+                                    },
+                                    "name": "num",
+                                    "nodeType": "Stmt_PropertyProperty"
+                                  }
+                                ],
+                                "start_position": {
+                                  "column": 5,
+                                  "filename": "\/a.php",
+                                  "row": 15
+                                }
+                              }
+                            }
+                          ],
+                          "properties": {
+                            "end_position": {
+                              "column": 1,
+                              "filename": "\/a.php",
+                              "row": 16
+                            },
+                            "flags": 0,
+                            "implements": [
+                            ],
+                            "name": "B",
+                            "start_position": {
+                              "column": 1,
+                              "filename": "\/a.php",
+                              "row": 14
+                            },
+                            "stmts": [
+                              {
+                                "attributes": {
+                                  "endFilePos": 166,
+                                  "endLine": 15,
+                                  "startFilePos": 144,
+                                  "startLine": 15
+                                },
+                                "flags": 9,
+                                "nodeType": "Stmt_Property",
+                                "props": [
+                                  {
+                                    "attributes": {
+                                      "endFilePos": 165,
+                                      "endLine": 15,
+                                      "startFilePos": 158,
+                                      "startLine": 15
+                                    },
+                                    "default": {
+                                      "attributes": {
+                                        "endFilePos": 165,
+                                        "endLine": 15,
+                                        "kind": 10,
+                                        "startFilePos": 165,
+                                        "startLine": 15
+                                      },
+                                      "nodeType": "Scalar_LNumber",
+                                      "value": 4
+                                    },
+                                    "name": "num",
+                                    "nodeType": "Stmt_PropertyProperty"
+                                  }
+                                ],
+                                "type": 9
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "common_kind": "unknown",
+                          "kind": {
+                            "namespace": "php",
+                            "kind": "expr_assign"
+                          },
+                          "children": [
+                            {
+                              "common_kind": "unknown",
+                              "kind": {
+                                "namespace": "php",
+                                "kind": "expr_variable"
+                              },
+                              "children": [
+                              ],
+                              "properties": {
+                                "end_position": {
+                                  "column": 5,
+                                  "filename": "\/a.php",
+                                  "row": 18
+                                },
+                                "name": "bnum",
+                                "start_position": {
+                                  "column": 1,
+                                  "filename": "\/a.php",
+                                  "row": 18
+                                }
+                              }
+                            },
+                            {
+                              "common_kind": "unknown",
+                              "kind": {
+                                "namespace": "php",
+                                "kind": "scalar_lnumber"
+                              },
+                              "children": [
+                              ],
+                              "properties": {
+                                "end_position": {
+                                  "column": 9,
+                                  "filename": "\/a.php",
+                                  "row": 18
+                                },
+                                "kind": "10",
+                                "start_position": {
+                                  "column": 9,
+                                  "filename": "\/a.php",
+                                  "row": 18
+                                },
+                                "value": "8"
+                              }
+                            }
+                          ],
+                          "properties": {
+                            "end_position": {
+                              "column": 9,
+                              "filename": "\/a.php",
+                              "row": 18
+                            },
+                            "start_position": {
+                              "column": 1,
+                              "filename": "\/a.php",
+                              "row": 18
+                            }
+                          }
+                        }
+                      ],
+                      "properties": {
+                        "end_position": null,
+                        "filename": "\/a.php",
+                        "name": "\/a.php",
+                        "start_position": null
+                      }
+                    }
+                  ],
+                  "properties": {
+                    "filename": "\/a.php"
+                  }
+                },
+                {
+                  "common_kind": "unknown",
+                  "kind": {
+                    "namespace": "php",
+                    "kind": "file"
+                  },
+                  "children": [
+                    {
+                      "common_kind": "unknown",
+                      "kind": {
+                        "namespace": "php",
+                        "kind": "file"
+                      },
+                      "children": [
+                        {
+                          "common_kind": "unknown",
+                          "kind": {
+                            "namespace": "php",
+                            "kind": "stmt_class"
+                          },
+                          "children": [
+                            {
+                              "common_kind": "unknown",
+                              "kind": {
+                                "namespace": "php",
+                                "kind": "stmt_property"
+                              },
+                              "children": [
+                                {
+                                  "common_kind": "unknown",
+                                  "kind": {
+                                    "namespace": "php",
+                                    "kind": "stmt_propertyproperty"
+                                  },
+                                  "children": [
+                                    {
+                                      "common_kind": "unknown",
+                                      "kind": {
+                                        "namespace": "php",
+                                        "kind": "scalar_lnumber"
+                                      },
+                                      "children": [
+                                      ],
+                                      "properties": {
+                                        "end_position": {
+                                          "column": 26,
+                                          "filename": "\/b.php",
+                                          "row": 4
+                                        },
+                                        "kind": "10",
+                                        "start_position": {
+                                          "column": 26,
+                                          "filename": "\/b.php",
+                                          "row": 4
+                                        },
+                                        "value": "4"
+                                      }
+                                    }
+                                  ],
+                                  "properties": {
+                                    "end_position": {
+                                      "column": 26,
+                                      "filename": "\/b.php",
+                                      "row": 4
+                                    },
+                                    "name": "num",
+                                    "start_position": {
+                                      "column": 19,
+                                      "filename": "\/b.php",
+                                      "row": 4
+                                    }
+                                  }
+                                }
+                              ],
+                              "properties": {
+                                "end_position": {
+                                  "column": 27,
+                                  "filename": "\/b.php",
+                                  "row": 4
+                                },
+                                "flags": "MODIFIER_PUBLIC | MODIFIER_STATIC (9)",
+                                "props": [
+                                  {
+                                    "attributes": {
+                                      "endFilePos": 42,
+                                      "endLine": 4,
+                                      "startFilePos": 35,
+                                      "startLine": 4
+                                    },
+                                    "default": {
+                                      "attributes": {
+                                        "endFilePos": 42,
+                                        "endLine": 4,
+                                        "kind": 10,
+                                        "startFilePos": 42,
+                                        "startLine": 4
+                                      },
+                                      "nodeType": "Scalar_LNumber",
+                                      "value": 4
+                                    },
+                                    "name": "num",
+                                    "nodeType": "Stmt_PropertyProperty"
+                                  }
+                                ],
+                                "start_position": {
+                                  "column": 5,
+                                  "filename": "\/b.php",
+                                  "row": 4
+                                }
+                              }
+                            }
+                          ],
+                          "properties": {
+                            "end_position": {
+                              "column": 1,
+                              "filename": "\/b.php",
+                              "row": 5
+                            },
+                            "flags": 0,
+                            "implements": [
+                            ],
+                            "name": "B",
+                            "start_position": {
+                              "column": 1,
+                              "filename": "\/b.php",
+                              "row": 3
+                            },
+                            "stmts": [
+                              {
+                                "attributes": {
+                                  "endFilePos": 43,
+                                  "endLine": 4,
+                                  "startFilePos": 21,
+                                  "startLine": 4
+                                },
+                                "flags": 9,
+                                "nodeType": "Stmt_Property",
+                                "props": [
+                                  {
+                                    "attributes": {
+                                      "endFilePos": 42,
+                                      "endLine": 4,
+                                      "startFilePos": 35,
+                                      "startLine": 4
+                                    },
+                                    "default": {
+                                      "attributes": {
+                                        "endFilePos": 42,
+                                        "endLine": 4,
+                                        "kind": 10,
+                                        "startFilePos": 42,
+                                        "startLine": 4
+                                      },
+                                      "nodeType": "Scalar_LNumber",
+                                      "value": 4
+                                    },
+                                    "name": "num",
+                                    "nodeType": "Stmt_PropertyProperty"
+                                  }
+                                ],
+                                "type": 9
+                              }
+                            ]
+                          }
+                        },
+                        {
+                          "common_kind": "unknown",
+                          "kind": {
+                            "namespace": "php",
+                            "kind": "expr_assign"
+                          },
+                          "children": [
+                            {
+                              "common_kind": "unknown",
+                              "kind": {
+                                "namespace": "php",
+                                "kind": "expr_variable"
+                              },
+                              "children": [
+                              ],
+                              "properties": {
+                                "end_position": {
+                                  "column": 5,
+                                  "filename": "\/b.php",
+                                  "row": 7
+                                },
+                                "name": "bnum",
+                                "start_position": {
+                                  "column": 1,
+                                  "filename": "\/b.php",
+                                  "row": 7
+                                }
+                              }
+                            },
+                            {
+                              "common_kind": "unknown",
+                              "kind": {
+                                "namespace": "php",
+                                "kind": "scalar_lnumber"
+                              },
+                              "children": [
+                              ],
+                              "properties": {
+                                "end_position": {
+                                  "column": 9,
+                                  "filename": "\/b.php",
+                                  "row": 7
+                                },
+                                "kind": "10",
+                                "start_position": {
+                                  "column": 9,
+                                  "filename": "\/b.php",
+                                  "row": 7
+                                },
+                                "value": "8"
+                              }
+                            }
+                          ],
+                          "properties": {
+                            "end_position": {
+                              "column": 9,
+                              "filename": "\/b.php",
+                              "row": 7
+                            },
+                            "start_position": {
+                              "column": 1,
+                              "filename": "\/b.php",
+                              "row": 7
+                            }
+                          }
+                        }
+                      ],
+                      "properties": {
+                        "end_position": null,
+                        "filename": "\/b.php",
+                        "name": "\/b.php",
+                        "start_position": null
+                      }
+                    }
+                  ],
+                  "properties": {
+                    "filename": "\/b.php"
+                  }
+                }
+              ],
+              "properties": null
+            },
+            "Error": null
+          }
+        },
+        "/resource": {
+          "Input": {},
+          "Output": {
+            "Code": 200,
+            "Data": {
+              "name": "testbasic"
+            },
+            "Error": null
+          }
+        }
+      }
+    }
+  ]
+}
