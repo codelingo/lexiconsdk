@@ -3,28 +3,29 @@
 
 endpoints:
   parse-project:
-    command: php
+    command: php                          # Call "PHP" on the container's command line.
     args:
-      - '/parse-project.php'
-      - '${trunkKey}'
-      - '${resourceDir}'
+      - '/server/parse-project.php'       # The PHP parser that will be executed.
+      - '${trunkKey}'                     # A string used to ID the topmost node; the parser will increment this internally on new nodes.
+      - '${resourceDir}'                  # A filepath of the directory to parse.
   changed-files:
     command: php
     args:
-      - '/parse-project.php'
+      - '/server/parse-project.php'
       - '${trunkKey}'
       - '${resourceDir}'
-      - '${changedFiles}'  # has to be last arg as it will be a list ie. a.php b.php dir/c.php
+      - '${changedFiles}'                 # A list of filepaths relative to ${resourceDir} that will be parsed instead of the whole directory.
+                                          # has to be last arg as it will be a list ie. a.php b.php dir/c.php
   list-facts:
     command: cat
     args:
-      - '/list-facts.json'
+      - '/server/list-facts.json'
   list-setup-steps:
     command: cat
     args:
-      - '/setup-steps.json'
+      - '/server//setup-steps.json'
   replace-properties:
     command: php
     args:
-      - '/replace-properties.php'
-      - '${fact}'
+      - '/server/replace-properties.php'
+      - '${fact}'                         # The fact to replace properties for
