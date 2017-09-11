@@ -1,5 +1,5 @@
 ## Setup
-AST lexicons must be built on Linux containers. Thus means all the binaries referenced in this README can only be run on Linux.
+AST lexicons must be built on Linux containers. This means all the binaries referenced in this README can only be run on Linux.
 
 All of the commands in this setup assumes that the working directory is at the root of this repo, ie. `lexiconsdk`.
 
