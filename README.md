@@ -7,4 +7,4 @@ This repo provides guides, examples, and other resources to create and test new 
 
 
 ## Examples
-- [PHP AST Lexicon](./examples/lexicons/codelingo/ast/php/php/parse-project.php)
+- [PHP AST Lexicon](./examples/lexicons/codelingo/ast/php/README.md)
