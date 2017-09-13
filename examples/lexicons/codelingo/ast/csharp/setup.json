@@ -1,0 +1,16 @@
+{
+  "Steps": [
+    {
+      "ResourceAction": {
+        "Name": "initialize-testing",
+        "Args": {}
+      },
+      "ParseActions": [
+        {
+          "Name": "parse-project",
+          "Args": {}
+        }
+      ]
+    }
+  ]
+}

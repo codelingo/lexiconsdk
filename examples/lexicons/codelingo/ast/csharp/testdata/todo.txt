@@ -1,3 +1,0 @@
-TODO: Add tests
-
-This file is here so the testdata/ directory exists in git.
