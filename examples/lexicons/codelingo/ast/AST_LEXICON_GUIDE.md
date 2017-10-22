@@ -32,7 +32,7 @@ Each node in the AST parser should be printed out on a single line in the JSON f
     "key": "string",
     "kind": {
         "namespace": "string",
-        "kind": "string",
+        "kind": "string"
     },
     "parentKey": "string",
     "properties": [
