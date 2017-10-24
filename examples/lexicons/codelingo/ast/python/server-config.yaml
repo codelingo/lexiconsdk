@@ -1,0 +1,31 @@
+# Command is some binary installed on the underlying container.
+# It's up to the lexicon author to ensure these commands are available by configuring the container in the dockerfile.
+
+endpoints:
+  parse-project:
+    command: python                          # Call "Python" on the container's command line.
+    args:
+      - '/server/parse_project.py'       # The Python parser that will be executed.
+      - '${trunkKey}'                     # A string used to ID the topmost node; the parser will increment this internally on new nodes.
+      - '${resourceDir}'                  # A filepath of the directory to parse.
+  changed-files:
+    command: python
+    args:
+      - '/server/parse_project.py'
+      - '${trunkKey}'
+      - '${resourceDir}'
+      - '${changedFiles}'                 # A list of filepaths relative to ${resourceDir} that will be parsed instead of the whole directory.
+                                          # has to be last arg as it will be a list ie. a.py b.py dir/c.py
+  list-facts:
+    command: cat
+    args:
+      - '/server/list-facts.json'
+  list-setup-steps:
+    command: cat
+    args:
+      - '/server/setup-steps.json'
+  replace-properties:
+    command: python
+    args:
+      - '/server/replace_properties.py'
+      - '${fact}'                         # The fact to replace properties for
