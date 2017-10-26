@@ -8,8 +8,22 @@ NAMESPACE = "python"
 ALLOWED_EXTENSIONS = (".py",)
 
 
-class Node(object):
-    def __init__(self, key, common_kind, kind, parent, orderable=False):
+class KeyManager(object):
+    def __init__(self, trunk_key):
+        self.trunk_key = trunk_key
+        self._next_key = None
+
+    @property
+    def next_key(self):
+        if self._next_key is None:
+            self._next_key = 0
+            return "{0}".format(self.trunk_key)
+        self._next_key += 1
+        return "{0}_{1}".format(self.trunk_key, self._next_key)
+
+
+class Node(ast.NodeVisitor):
+    def __init__(self, key, common_kind=None, kind=None, parent=None, orderable=False):
         self.key = key
         self.common_kind = common_kind
         self.kind = kind
@@ -23,6 +37,14 @@ class Node(object):
     def is_root(self):
         return self.parent is None
 
+    def inject_filename(self, filename):
+        self.properties['filename'] = {'type': 'string', 'value': filename}
+
+    def visit_Module(self, node):
+        self.inject_filename(node.filename)
+        self.common_kind = 'file'
+        self.kind = {'namespace': NAMESPACE, 'kind': 'file', 'orderable': True}
+
 
 class NodeEncoder(json.JSONEncoder):
     def default(self, obj):
@@ -34,16 +56,40 @@ class NodeEncoder(json.JSONEncoder):
                     "olderSiblings": obj.siblings}
 
 
+def ast_node_to_node(ast_node, km=None):
+    if km is None:
+        km = KeyManager("0")
+   
+    node = Node(km.next_key)
+    node.visit(ast_node)
+    return node
+
+
 def build_graph(trunk_key, path):
-    node = Node(trunk_key, "project", "project", None)
+    km = KeyManager(trunk_key)
+    nodes = [Node(km.next_key, "project", "project"),]
     for roots, dirs, files in os.walk(path):
         for f in files:
+            print(f)
             suffix = PurePath(f).suffix
             if suffix in ALLOWED_EXTENSIONS:
                 abs_file = os.path.join(roots, f)
-                ast_node = ast.parse(open(abs_file, 'r').read())
-                print(ast_node)
-    return node
+                root = ast.parse(open(abs_file, 'r').read())
+                root.filename = abs_file
+                parsed_root = ast_node_to_node(root, km)
+                parsed_root.parent = nodes[0]
+                nodes.append(parsed_root)
+                for node in ast.walk(root):
+                    node.filename = abs_file
+                    parsed_node = ast_node_to_node(node, km)
+                    parsed_node.parent = parsed_root
+                    nodes.append(parsed_node)
+                    for child in ast.iter_child_nodes(node):
+                        child.filename = abs_file
+                        parsed_child = ast_node_to_node(child, km)
+                        parsed_child.parent = parsed_node
+                        nodes.append(parsed_child)
+    return nodes
 
 
 def parse_project(trunk_key, project_dir):
