@@ -4,22 +4,26 @@ import os
 import sys
 from pathlib import PurePath
 
-NAMESPACE = "python"
+NAMESPACE = "python36"
 ALLOWED_EXTENSIONS = (".py",)
 
 
 class KeyManager(object):
     def __init__(self, trunk_key):
-        self.trunk_key = trunk_key
-        self._next_key = None
+        parts = trunk_key.split('_')
+        if len(parts) == 2:
+            self.trunk = int(parts[0])
+            self.num = int(parts[1])
+        elif len(parts) == 1:
+            self.trunk = int(parts[0])
+            self.num = 0
+        else:
+            raise Exception("invalid trunk key")
 
     @property
     def next_key(self):
-        if self._next_key is None:
-            self._next_key = 0
-            return "{0}".format(self.trunk_key)
-        self._next_key += 1
-        return "{0}_{1}".format(self.trunk_key, self._next_key)
+        self.num += 1
+        return '{0}_{1}'.format(self.trunk, self.num)
 
 
 def mod(visit_func):
@@ -53,19 +57,25 @@ def expr(visit_func):
 
 
 class Node(ast.NodeVisitor):
-    def __init__(self, key, filename, common_kind=None, kind=None, parent=None, orderable=False):
+    def __init__(self, key, kind, common_kind=None, parent_key=None, orderable=False):
         self.key = key
         self.common_kind = common_kind
         self.kind = kind
-        self.parent = parent
+        self.parent_key = parent_key
         self.orderable = orderable
         self.namespace = NAMESPACE
-        self.properties = {'filename': {'type': 'string', 'value': filename}} if filename is not None else {}
+        self.properties = {}
         self.siblings = []
         self.children = []
 
+    def set_prop(self, key, value):
+        self.properties[key] = {
+            'type': value.__class__.__name__,
+            'value': str(value),
+        }
+
     def is_root(self):
-        return self.parent is None
+        return self.parent_key is None
 
     # Modules
     @mod
@@ -315,7 +325,7 @@ class NodeEncoder(json.JSONEncoder):
         if isinstance(obj, Node):
             return {"commonKind": obj.common_kind, "key": obj.key,
                     "kind": {"namespace": obj.namespace, "kind": obj.kind, "orderable": obj.orderable},
-                    "parentKey": obj.parent.key if obj.parent else "",
+                    "parentKey": obj.parent_key,
                     "properties": obj.properties,
                     "olderSiblings": obj.siblings}
 
@@ -325,7 +335,7 @@ def ast_node_to_node(ast_node, km=None, filename=None):
         km = KeyManager("0")
     if filename is None:
         filename = '__MISSING__'
-  
+
     node = Node(km.next_key, filename)
     node.visit(ast_node)
     return node
@@ -355,17 +365,93 @@ def build_graph(trunk_key, path):
     return nodes
 
 
-def parse_project(trunk_key, project_dir):
-    project_abs_path = os.path.abspath(project_dir)
-    results = build_graph(trunk_key, project_abs_path)
-    return json.dumps(results, cls=NodeEncoder)
+def print_node(node):
+    print(json.dumps(node, cls=NodeEncoder))
+
+
+class Parser(object):
+
+    def __init__(self, base_dir, key_man, files):
+        self.base_dir = base_dir
+        self.key_man = key_man
+        self.files = files
+        self.parse_all = len(files) == 0
+
+    def parse_dir(self, parent_key, dir_path):
+        has_files = False
+        abs_dir_path = os.path.abspath(dir_path)
+        rel_dir_path = os.path.relpath(dir_path, self.base_dir)
+        if rel_dir_path != '.' and not rel_dir_path.startswith('./'):
+            rel_dir_path = './' + rel_dir_path
+
+        dir_node = Node(self.key_man.next_key, 'dir', common_kind='dir', parent_key=parent_key)
+        dir_node.set_prop('filename', rel_dir_path)
+
+        for file_path in os.listdir(abs_dir_path):
+            abs_file_path = os.path.join(dir_path, file_path)
+            if os.path.isdir(abs_file_path):
+                if self.parse_dir(dir_node.key, abs_file_path):
+                    has_files = True
+            if os.path.isfile(abs_file_path):
+                suffix = PurePath(file_path).suffix
+                if suffix in ALLOWED_EXTENSIONS:
+                    if self.parse_file(dir_node.key, abs_file_path):
+                        has_files = True
+
+        if has_files:
+            print_node(dir_node)
+
+        return has_files
+
+    def parse_file(self, parent_key, file_path):
+        abs_file_path = os.path.abspath(file_path)
+        rel_file_path = './' + os.path.relpath(file_path, self.base_dir)
+        if not rel_file_path.startswith('./'):
+            rel_file_path = './' + rel_file_path
+
+        if not self.parse_all:
+            if rel_file_path not in self.files:
+                return False
+
+        file_node = Node(self.key_man.next_key, 'file', common_kind="file", parent_key=parent_key)
+        file_node.set_prop("filename", rel_file_path)
+        print_node(file_node)
+
+        # root = ast.parse(open(abs_file_path, 'r').read())
+        # parsed_root = ast_node_to_node(root, km, abs_file)
+        # parsed_root.parent = nodes[0]
+        # nodes.append(parsed_root)
+        # for node in ast.walk(root):
+        #     parsed_node = ast_node_to_node(node, km, abs_file)
+        #     parsed_node.parent = parsed_root
+        #     nodes.append(parsed_node)
+        #     for child in ast.iter_child_nodes(node):
+        #         parsed_child = ast_node_to_node(child, km, abs_file)
+        #         parsed_child.parent = parsed_node
+        #         nodes.append(parsed_child)
+
+        return True
 
 
 def main(argv):
     trunk_key = argv[1]
-    project_dir = argv[2]
-    return parse_project(trunk_key, project_dir)
+    base_dir = argv[2]
+    changed_files = {}
+    if len(argv) > 3:
+        file_args = argv[3:]
+        for file in file_args:
+            if not file.startswith("./"):
+                file = "./" + file
+            changed_files[file] = True
+
+    key_man = KeyManager(trunk_key)
+    parser = Parser(base_dir, key_man, changed_files)
+
+    project_node = Node(trunk_key, 'project', common_kind='project')
+    print_node(project_node)
+
+    parser.parse_dir(project_node.key, base_dir)
 
 
 if __name__ == '__main__':
-    print(main(sys.argv))
+    main(sys.argv)
