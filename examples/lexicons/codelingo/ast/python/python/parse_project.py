@@ -22,21 +22,33 @@ class KeyManager(object):
         return "{0}_{1}".format(self.trunk_key, self._next_key)
 
 
+def mod(visit_func):
+    def wrapper(node, ast_node):
+        node.common_kind = 'mod'
+        node.properties['start_column'] = {'type': 'string', 'value': '{0}'.format(getattr(ast_node, 'col_offset', 0))}
+        node.properties['start_line'] = {'type': 'string', 'value': '{0}'.format(getattr(ast_node, 'lineno', 0))}
+        visit_func(node, ast_node)
+
+    return wrapper
+
+
 def stmt(visit_func):
     def wrapper(node, ast_node):
         node.common_kind = 'stmt'
-        node.properties['start_offset'] = {'type': 'string', 'value': '{0}'.format(getattr(ast_node, 'col_offset', 0))}
+        node.properties['start_column'] = {'type': 'string', 'value': '{0}'.format(getattr(ast_node, 'col_offset', 0))}
         node.properties['start_line'] = {'type': 'string', 'value': '{0}'.format(getattr(ast_node, 'lineno', 0))}
         visit_func(node, ast_node)
+
     return wrapper
 
 
 def expr(visit_func):
     def wrapper(node, ast_node):
         node.common_kind = 'expr'
-        node.properties['start_offset'] = {'type': 'string', 'value': '{0}'.format(getattr(ast_node, 'col_offset', 0))}
+        node.properties['start_column'] = {'type': 'string', 'value': '{0}'.format(getattr(ast_node, 'col_offset', 0))}
         node.properties['start_line'] = {'type': 'string', 'value': '{0}'.format(getattr(ast_node, 'lineno', 0))}
         visit_func(node, ast_node)
+
     return wrapper
 
 
@@ -48,30 +60,44 @@ class Node(ast.NodeVisitor):
         self.parent = parent
         self.orderable = orderable
         self.namespace = NAMESPACE
-        self.properties = {'filename': {'type': 'string', 'value': filename}}
+        self.properties = {'filename': {'type': 'string', 'value': filename}} if filename is not None else {}
         self.siblings = []
         self.children = []
 
     def is_root(self):
         return self.parent is None
 
+    # Modules
+    @mod
     def visit_Module(self, node):
-        self.common_kind = 'file'
-        self.kind = {'namespace': NAMESPACE, 'kind': 'file', 'orderable': True}
+        self.kind = {'namespace': NAMESPACE, 'kind': 'mod_module', 'orderable': True}
+
+    @mod
+    def visit_Interactive(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'mod_interactive', 'orderable': True}
+
+    @mod
+    def visit_Expression(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'mod_expression', 'orderable': True}
+
+    @mod
+    def visit_Suite(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'mod_suite', 'orderable': True}
 
     # Statements
     @stmt
     def visit_FunctionDef(self, node):
-        self.kind = {'namespace': NAMESPACE, 'kind': 'stmt_function', 'orderable': True}
+        self.kind = {'namespace': NAMESPACE, 'kind': 'stmt_function_def', 'orderable': True}
         self.properties['name'] = {'type': 'string', 'value': node.name}
 
     @stmt
     def visit_AsyncFunctionDef(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'stmt_async_function_def', 'orderable': True}
         self.visit_FunctionDef(node)
 
     @stmt
     def visit_ClassDef(self, node):
-        self.kind = {'namespace': NAMESPACE, 'kind': 'stmt_class', 'orderable': True}
+        self.kind = {'namespace': NAMESPACE, 'kind': 'stmt_class_def', 'orderable': True}
         self.properties['name'] = {'type': 'string', 'value': node.name}
 
     @stmt
@@ -88,19 +114,19 @@ class Node(ast.NodeVisitor):
 
     @stmt
     def visit_AugAssign(self, node):
-        self.visit_Assign(node)
+        self.kind = {'namespace': NAMESPACE, 'kind': 'stmt_aug_assign', 'orderable': True}
 
     @stmt
     def visit_AnnAssign(self, node):
-        self.visit_AnnAssign(node)
+        self.kind = {'namespace': NAMESPACE, 'kind': 'stmt_ann_assign', 'orderable': True}
 
     @stmt
     def visit_For(self, node):
         self.kind = {'namespace': NAMESPACE, 'kind': 'stmt_for', 'orderable': True}
-       
+
     @stmt
     def visit_AsyncFor(self, node):
-        self.visit_For(node)
+        self.kind = {'namespace': NAMESPACE, 'kind': 'stmt_async_for', 'orderable': True}
 
     @stmt
     def visit_While(self, node):
@@ -116,7 +142,7 @@ class Node(ast.NodeVisitor):
 
     @stmt
     def visit_AsyncWith(self, node):
-        self.visit_With(node)
+        self.kind = {'namespace': NAMESPACE, 'kind': 'stmt_async_with', 'orderable': True}
 
     @stmt
     def visit_Raise(self, node):
@@ -136,12 +162,12 @@ class Node(ast.NodeVisitor):
 
     @stmt
     def visit_ImportFrom(self, node):
-        self.kind = {'namespace': NAMESPACE, 'kind': 'stmt_importfrom', 'orderable': True}
+        self.kind = {'namespace': NAMESPACE, 'kind': 'stmt_import_from', 'orderable': True}
 
     @stmt
     def visit_Global(self, node):
         self.kind = {'namespace': NAMESPACE, 'kind': 'stmt_global', 'orderable': True}
-        
+
     @stmt
     def visit_Nonlocal(self, node):
         self.kind = {'namespace': NAMESPACE, 'kind': 'stmt_nonlocal', 'orderable': True}
@@ -165,31 +191,123 @@ class Node(ast.NodeVisitor):
     # Expressions
     @expr
     def visit_BoolOp(self, node):
-        pass
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_bool_op', 'orderable': True}
 
     @expr
     def visit_BinOp(self, node):
-        pass
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_bin_op', 'orderable': True}
 
     @expr
     def visit_UnaryOp(self, node):
-        pass
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_unary_op', 'orderable': True}
 
     @expr
     def visit_Lambda(self, node):
-        pass
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_lambda', 'orderable': True}
 
     @expr
     def visit_IfExp(self, node):
-        pass
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_if_exp', 'orderable': True}
 
     @expr
     def visit_Dict(self, node):
-        pass
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_dict', 'orderable': True}
 
     @expr
     def visit_Set(self, node):
-        pass
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_set', 'orderable': True}
+
+    @expr
+    def visit_ListComp(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_list_comp', 'orderable': True}
+
+    @expr
+    def visit_SetComp(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_set_comp', 'orderable': True}
+
+    @expr
+    def visit_DictComp(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_dict_comp', 'orderable': True}
+
+    @expr
+    def visit_GeneratorExp(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_generator_exp', 'orderable': True}
+
+    @expr
+    def visit_Await(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_await', 'orderable': True}
+
+    @expr
+    def visit_Yield(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_yield', 'orderable': True}
+
+    @expr
+    def visit_YieldFrom(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_yield_from', 'orderable': True}
+
+    @expr
+    def visit_Compare(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_compare', 'orderable': True}
+
+    @expr
+    def visit_Call(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_call', 'orderable': True}
+
+    @expr
+    def visit_Num(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_num', 'orderable': True}
+
+    @expr
+    def visit_Str(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_str', 'orderable': True}
+
+    @expr
+    def visit_FormattedValue(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_formatted_value', 'orderable': True}
+
+    @expr
+    def visit_JoinedStr(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_join_str', 'orderable': True}
+
+    @expr
+    def visit_Bytes(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_bytes', 'orderable': True}
+
+    @expr
+    def visit_NameConstant(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_name_constant', 'orderable': True}
+
+    @expr
+    def visit_Ellipsis(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_ellipsis', 'orderable': True}
+
+    @expr
+    def visit_Constant(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_constant', 'orderable': True}
+
+    @expr
+    def visit_Attribute(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_attribute', 'orderable': True}
+
+    @expr
+    def visit_Subscript(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_subscript', 'orderable': True}
+
+    @expr
+    def visit_Starred(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_starred', 'orderable': True}
+
+    @expr
+    def visit_Name(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_name', 'orderable': True}
+
+    @expr
+    def visit_List(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_list', 'orderable': True}
+
+    @expr
+    def visit_Tuple(self, node):
+        self.kind = {'namespace': NAMESPACE, 'kind': 'expr_tuple', 'orderable': True}
 
 
 class NodeEncoder(json.JSONEncoder):
