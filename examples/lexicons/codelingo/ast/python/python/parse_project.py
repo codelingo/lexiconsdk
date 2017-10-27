@@ -93,7 +93,8 @@ class Node(ast.NodeVisitor):
     @stmt
     def visit_AsyncFunctionDef(self, node):
         self.kind = {'namespace': NAMESPACE, 'kind': 'stmt_async_function_def', 'orderable': True}
-        self.visit_FunctionDef(node)
+        self.properties['name'] = {'type': 'string', 'value': node.name}
+
 
     @stmt
     def visit_ClassDef(self, node):
