@@ -99,7 +99,7 @@ class NodeVisitor(ast.NodeVisitor):
         visitor = getattr(self, method, self.generic_visit)
 
         node = Node(self.key_man.next_key)
-        node.kind = {'namespace': NAMESPACE, 'kind': convert(method), 'orderable': True}
+        node.kind = {'namespace': NAMESPACE, 'kind': convert(ast_node.__class__.__name__), 'orderable': True}
         node.set_prop("filename", self.filename)
 
         stack_length = len(self.stack)
