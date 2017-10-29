@@ -1,0 +1,139 @@
+{
+  "Tests": [
+    {
+      "Name": "Two basic files",
+      "Steps": [
+        {
+          "ResourceAction": {
+            "Name": "load-test",
+            "Args": {
+              "name": "testbasic"
+            }
+          },
+          "ParseActions": [
+            {
+              "Name": "parse-project",
+              "Args": {}
+            }
+          ]
+        }
+      ],
+      "Endpoints": {
+        "/parse/parse": {
+          "Input": {
+            "trunkKey": "2"
+          },
+          "Output": [
+            {"commonKind":"project","key":"2","kind":{"namespace":"python","kind":"project","orderable":false},"parentKey":"","properties":{},"olderSiblings":[]},
+            {"commonKind":"file","key":"2_3","kind":{"namespace":"php","kind":"file","orderable":true},"parentKey":"2_2","properties":{"filename":{"type":"string","value":".\/testbasic\/a.py"},"start_column":{"type":"string","value":"0"},"start_line":{"type":"string","value":"0"},"start_offset":{"type":"string","value":"0"},"end_column":{"type":"string","value":"0"},"end_line":{"type":"string","value":"0"},"end_offset":{"type":"string","value":"0"}},"olderSiblings":[]},
+
+            {"commonKind":"import","key":"2_4","kind":{"namespace":"php","kind":"expr_include","orderable":true},"parentKey":"2_3","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"1"},"start_line":{"type":"string","value":"3"},"start_offset":{"type":"string","value":"7"},"end_column":{"type":"string","value":"29"},"end_line":{"type":"string","value":"3"},"end_offset":{"type":"string","value":"35"},"type":{"type":"string","value":"TYPE_REQURE_ONCE (4)"}},"olderSiblings":[]},
+            {"commonKind":"unknown","key":"2_5","kind":{"namespace":"php","kind":"expr_binaryop_concat","orderable":true},"parentKey":"2_4","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"14"},"start_line":{"type":"string","value":"3"},"start_offset":{"type":"string","value":"20"},"end_column":{"type":"string","value":"29"},"end_line":{"type":"string","value":"3"},"end_offset":{"type":"string","value":"35"}},"olderSiblings":[]},
+            {"commonKind":"unknown","key":"2_6","kind":{"namespace":"php","kind":"scalar_magicconst_dir","orderable":true},"parentKey":"2_5","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"14"},"start_line":{"type":"string","value":"3"},"start_offset":{"type":"string","value":"20"},"end_column":{"type":"string","value":"20"},"end_line":{"type":"string","value":"3"},"end_offset":{"type":"string","value":"26"}},"olderSiblings":[]},
+            {"commonKind":"unknown","key":"2_7","kind":{"namespace":"php","kind":"scalar_string","orderable":true},"parentKey":"2_5","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"22"},"start_line":{"type":"string","value":"3"},"start_offset":{"type":"string","value":"28"},"end_column":{"type":"string","value":"29"},"end_line":{"type":"string","value":"3"},"end_offset":{"type":"string","value":"35"},"kind":{"type":"string","value":"1"},"value":{"type":"string","value":"\/b.php"}},"olderSiblings":["2_6"]},
+            {"commonKind":"stmt","key":"2_8","kind":{"namespace":"php","kind":"stmt_class","orderable":true},"parentKey":"2_3","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"1"},"start_line":{"type":"string","value":"5"},"start_offset":{"type":"string","value":"39"},"end_column":{"type":"string","value":"1"},"end_line":{"type":"string","value":"7"},"end_offset":{"type":"string","value":"78"},"flags":{"type":"string","value":"0"},"name":{"type":"string","value":"A"}},"olderSiblings":[]},
+            {"commonKind":"stmt","key":"2_9","kind":{"namespace":"php","kind":"stmt_property","orderable":true},"parentKey":"2_8","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"5"},"start_line":{"type":"string","value":"6"},"start_offset":{"type":"string","value":"53"},"end_column":{"type":"string","value":"28"},"end_line":{"type":"string","value":"6"},"end_offset":{"type":"string","value":"76"},"flags":{"type":"string","value":"MODIFIER_PUBLIC | MODIFIER_STATIC (9)"}},"olderSiblings":[]},
+            {"commonKind":"stmt","key":"2_10","kind":{"namespace":"php","kind":"stmt_propertyproperty","orderable":true},"parentKey":"2_9","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"19"},"start_line":{"type":"string","value":"6"},"start_offset":{"type":"string","value":"67"},"end_column":{"type":"string","value":"27"},"end_line":{"type":"string","value":"6"},"end_offset":{"type":"string","value":"75"},"name":{"type":"string","value":"num"}},"olderSiblings":[]},
+            {"commonKind":"unknown","key":"2_11","kind":{"namespace":"php","kind":"scalar_lnumber","orderable":true},"parentKey":"2_10","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"26"},"start_line":{"type":"string","value":"6"},"start_offset":{"type":"string","value":"74"},"end_column":{"type":"string","value":"27"},"end_line":{"type":"string","value":"6"},"end_offset":{"type":"string","value":"75"},"kind":{"type":"string","value":"10"},"value":{"type":"string","value":"17"}},"olderSiblings":[]},
+            {"commonKind":"unknown","key":"2_12","kind":{"namespace":"php","kind":"expr_assign","orderable":true},"parentKey":"2_3","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"1"},"start_line":{"type":"string","value":"9"},"start_offset":{"type":"string","value":"81"},"end_column":{"type":"string","value":"12"},"end_line":{"type":"string","value":"9"},"end_offset":{"type":"string","value":"92"}},"olderSiblings":[]},
+            {"commonKind":"var","key":"2_13","kind":{"namespace":"php","kind":"expr_variable","orderable":true},"parentKey":"2_12","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"1"},"start_line":{"type":"string","value":"9"},"start_offset":{"type":"string","value":"81"},"end_column":{"type":"string","value":"2"},"end_line":{"type":"string","value":"9"},"end_offset":{"type":"string","value":"82"},"name":{"type":"string","value":"a"}},"olderSiblings":[]},
+            {"commonKind":"unknown","key":"2_14","kind":{"namespace":"php","kind":"expr_staticpropertyfetch","orderable":true},"parentKey":"2_12","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"6"},"start_line":{"type":"string","value":"9"},"start_offset":{"type":"string","value":"86"},"end_column":{"type":"string","value":"12"},"end_line":{"type":"string","value":"9"},"end_offset":{"type":"string","value":"92"},"name":{"type":"string","value":"num"}},"olderSiblings":["2_13"]},
+            {"commonKind":"unknown","key":"2_15","kind":{"namespace":"php","kind":"name_fullyqualified","orderable":true},"parentKey":"2_14","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"6"},"start_line":{"type":"string","value":"9"},"start_offset":{"type":"string","value":"86"},"end_column":{"type":"string","value":"6"},"end_line":{"type":"string","value":"9"},"end_offset":{"type":"string","value":"86"}},"olderSiblings":[]},
+            {"commonKind":"unknown","key":"2_16","kind":{"namespace":"php","kind":"expr_assign","orderable":true},"parentKey":"2_3","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"1"},"start_line":{"type":"string","value":"10"},"start_offset":{"type":"string","value":"95"},"end_column":{"type":"string","value":"12"},"end_line":{"type":"string","value":"10"},"end_offset":{"type":"string","value":"106"}},"olderSiblings":[]},
+            {"commonKind":"var","key":"2_17","kind":{"namespace":"php","kind":"expr_variable","orderable":true},"parentKey":"2_16","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"1"},"start_line":{"type":"string","value":"10"},"start_offset":{"type":"string","value":"95"},"end_column":{"type":"string","value":"2"},"end_line":{"type":"string","value":"10"},"end_offset":{"type":"string","value":"96"},"name":{"type":"string","value":"b"}},"olderSiblings":[]},
+            {"commonKind":"unknown","key":"2_18","kind":{"namespace":"php","kind":"expr_staticpropertyfetch","orderable":true},"parentKey":"2_16","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"6"},"start_line":{"type":"string","value":"10"},"start_offset":{"type":"string","value":"100"},"end_column":{"type":"string","value":"12"},"end_line":{"type":"string","value":"10"},"end_offset":{"type":"string","value":"106"},"name":{"type":"string","value":"num"}},"olderSiblings":["2_17"]},
+            {"commonKind":"unknown","key":"2_19","kind":{"namespace":"php","kind":"name_fullyqualified","orderable":true},"parentKey":"2_18","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"6"},"start_line":{"type":"string","value":"10"},"start_offset":{"type":"string","value":"100"},"end_column":{"type":"string","value":"6"},"end_line":{"type":"string","value":"10"},"end_offset":{"type":"string","value":"100"}},"olderSiblings":[]},
+            {"commonKind":"unknown","key":"2_20","kind":{"namespace":"php","kind":"expr_assign","orderable":true},"parentKey":"2_3","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"1"},"start_line":{"type":"string","value":"11"},"start_offset":{"type":"string","value":"109"},"end_column":{"type":"string","value":"6"},"end_line":{"type":"string","value":"11"},"end_offset":{"type":"string","value":"114"}},"olderSiblings":[]},
+            {"commonKind":"var","key":"2_21","kind":{"namespace":"php","kind":"expr_variable","orderable":true},"parentKey":"2_20","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"1"},"start_line":{"type":"string","value":"11"},"start_offset":{"type":"string","value":"109"},"end_column":{"type":"string","value":"2"},"end_line":{"type":"string","value":"11"},"end_offset":{"type":"string","value":"110"},"name":{"type":"string","value":"c"}},"olderSiblings":[]},
+            {"commonKind":"unknown","key":"2_22","kind":{"namespace":"php","kind":"scalar_lnumber","orderable":true},"parentKey":"2_20","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"6"},"start_line":{"type":"string","value":"11"},"start_offset":{"type":"string","value":"114"},"end_column":{"type":"string","value":"6"},"end_line":{"type":"string","value":"11"},"end_offset":{"type":"string","value":"114"},"kind":{"type":"string","value":"10"},"value":{"type":"string","value":"5"}},"olderSiblings":["2_21"]},
+            {"commonKind":"unknown","key":"2_23","kind":{"namespace":"php","kind":"expr_assign","orderable":true},"parentKey":"2_3","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"1"},"start_line":{"type":"string","value":"12"},"start_offset":{"type":"string","value":"117"},"end_column":{"type":"string","value":"10"},"end_line":{"type":"string","value":"12"},"end_offset":{"type":"string","value":"126"}},"olderSiblings":[]},
+            {"commonKind":"var","key":"2_24","kind":{"namespace":"php","kind":"expr_variable","orderable":true},"parentKey":"2_23","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"1"},"start_line":{"type":"string","value":"12"},"start_offset":{"type":"string","value":"117"},"end_column":{"type":"string","value":"2"},"end_line":{"type":"string","value":"12"},"end_offset":{"type":"string","value":"118"},"name":{"type":"string","value":"d"}},"olderSiblings":[]},
+            {"commonKind":"var","key":"2_25","kind":{"namespace":"php","kind":"expr_variable","orderable":true},"parentKey":"2_23","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"6"},"start_line":{"type":"string","value":"12"},"start_offset":{"type":"string","value":"122"},"end_column":{"type":"string","value":"10"},"end_line":{"type":"string","value":"12"},"end_offset":{"type":"string","value":"126"},"name":{"type":"string","value":"bnum"}},"olderSiblings":["2_24"]},
+            {"commonKind":"stmt","key":"2_26","kind":{"namespace":"php","kind":"stmt_class","orderable":true},"parentKey":"2_3","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"1"},"start_line":{"type":"string","value":"14"},"start_offset":{"type":"string","value":"130"},"end_column":{"type":"string","value":"1"},"end_line":{"type":"string","value":"16"},"end_offset":{"type":"string","value":"168"},"flags":{"type":"string","value":"0"},"name":{"type":"string","value":"B"}},"olderSiblings":[]},
+            {"commonKind":"stmt","key":"2_27","kind":{"namespace":"php","kind":"stmt_property","orderable":true},"parentKey":"2_26","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"5"},"start_line":{"type":"string","value":"15"},"start_offset":{"type":"string","value":"144"},"end_column":{"type":"string","value":"27"},"end_line":{"type":"string","value":"15"},"end_offset":{"type":"string","value":"166"},"flags":{"type":"string","value":"MODIFIER_PUBLIC | MODIFIER_STATIC (9)"}},"olderSiblings":[]},
+            {"commonKind":"stmt","key":"2_28","kind":{"namespace":"php","kind":"stmt_propertyproperty","orderable":true},"parentKey":"2_27","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"19"},"start_line":{"type":"string","value":"15"},"start_offset":{"type":"string","value":"158"},"end_column":{"type":"string","value":"26"},"end_line":{"type":"string","value":"15"},"end_offset":{"type":"string","value":"165"},"name":{"type":"string","value":"num"}},"olderSiblings":[]},
+            {"commonKind":"unknown","key":"2_29","kind":{"namespace":"php","kind":"scalar_lnumber","orderable":true},"parentKey":"2_28","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"26"},"start_line":{"type":"string","value":"15"},"start_offset":{"type":"string","value":"165"},"end_column":{"type":"string","value":"26"},"end_line":{"type":"string","value":"15"},"end_offset":{"type":"string","value":"165"},"kind":{"type":"string","value":"10"},"value":{"type":"string","value":"4"}},"olderSiblings":[]},
+            {"commonKind":"unknown","key":"2_30","kind":{"namespace":"php","kind":"expr_assign","orderable":true},"parentKey":"2_3","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"1"},"start_line":{"type":"string","value":"18"},"start_offset":{"type":"string","value":"171"},"end_column":{"type":"string","value":"9"},"end_line":{"type":"string","value":"18"},"end_offset":{"type":"string","value":"179"}},"olderSiblings":[]},
+            {"commonKind":"var","key":"2_31","kind":{"namespace":"php","kind":"expr_variable","orderable":true},"parentKey":"2_30","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"1"},"start_line":{"type":"string","value":"18"},"start_offset":{"type":"string","value":"171"},"end_column":{"type":"string","value":"5"},"end_line":{"type":"string","value":"18"},"end_offset":{"type":"string","value":"175"},"name":{"type":"string","value":"bnum"}},"olderSiblings":[]},
+            {"commonKind":"unknown","key":"2_32","kind":{"namespace":"php","kind":"scalar_lnumber","orderable":true},"parentKey":"2_30","properties":{"filename":{"type":"string","value":".\/testbasic\/a.php"},"start_column":{"type":"string","value":"9"},"start_line":{"type":"string","value":"18"},"start_offset":{"type":"string","value":"179"},"end_column":{"type":"string","value":"9"},"end_line":{"type":"string","value":"18"},"end_offset":{"type":"string","value":"179"},"kind":{"type":"string","value":"10"},"value":{"type":"string","value":"8"}},"olderSiblings":["2_31"]},
+            {"commonKind":"file","key":"2_33","kind":{"namespace":"php","kind":"file","orderable":true},"parentKey":"2_2","properties":{"filename":{"type":"string","value":".\/testbasic\/b.php"},"start_column":{"type":"string","value":"0"},"start_line":{"type":"string","value":"0"},"start_offset":{"type":"string","value":"0"},"end_column":{"type":"string","value":"0"},"end_line":{"type":"string","value":"0"},"end_offset":{"type":"string","value":"0"}},"olderSiblings":[]},
+            {"commonKind":"stmt","key":"2_34","kind":{"namespace":"php","kind":"stmt_class","orderable":true},"parentKey":"2_33","properties":{"filename":{"type":"string","value":".\/testbasic\/b.php"},"start_column":{"type":"string","value":"1"},"start_line":{"type":"string","value":"3"},"start_offset":{"type":"string","value":"7"},"end_column":{"type":"string","value":"1"},"end_line":{"type":"string","value":"5"},"end_offset":{"type":"string","value":"45"},"flags":{"type":"string","value":"0"},"name":{"type":"string","value":"B"}},"olderSiblings":[]},
+            {"commonKind":"stmt","key":"2_35","kind":{"namespace":"php","kind":"stmt_property","orderable":true},"parentKey":"2_34","properties":{"filename":{"type":"string","value":".\/testbasic\/b.php"},"start_column":{"type":"string","value":"5"},"start_line":{"type":"string","value":"4"},"start_offset":{"type":"string","value":"21"},"end_column":{"type":"string","value":"27"},"end_line":{"type":"string","value":"4"},"end_offset":{"type":"string","value":"43"},"flags":{"type":"string","value":"MODIFIER_PUBLIC | MODIFIER_STATIC (9)"}},"olderSiblings":[]},
+            {"commonKind":"stmt","key":"2_36","kind":{"namespace":"php","kind":"stmt_propertyproperty","orderable":true},"parentKey":"2_35","properties":{"filename":{"type":"string","value":".\/testbasic\/b.php"},"start_column":{"type":"string","value":"19"},"start_line":{"type":"string","value":"4"},"start_offset":{"type":"string","value":"35"},"end_column":{"type":"string","value":"26"},"end_line":{"type":"string","value":"4"},"end_offset":{"type":"string","value":"42"},"name":{"type":"string","value":"num"}},"olderSiblings":[]},
+            {"commonKind":"unknown","key":"2_37","kind":{"namespace":"php","kind":"scalar_lnumber","orderable":true},"parentKey":"2_36","properties":{"filename":{"type":"string","value":".\/testbasic\/b.php"},"start_column":{"type":"string","value":"26"},"start_line":{"type":"string","value":"4"},"start_offset":{"type":"string","value":"42"},"end_column":{"type":"string","value":"26"},"end_line":{"type":"string","value":"4"},"end_offset":{"type":"string","value":"42"},"kind":{"type":"string","value":"10"},"value":{"type":"string","value":"4"}},"olderSiblings":[]},
+            {"commonKind":"unknown","key":"2_38","kind":{"namespace":"php","kind":"expr_assign","orderable":true},"parentKey":"2_33","properties":{"filename":{"type":"string","value":".\/testbasic\/b.php"},"start_column":{"type":"string","value":"1"},"start_line":{"type":"string","value":"7"},"start_offset":{"type":"string","value":"48"},"end_column":{"type":"string","value":"9"},"end_line":{"type":"string","value":"7"},"end_offset":{"type":"string","value":"56"}},"olderSiblings":[]},
+            {"commonKind":"var","key":"2_39","kind":{"namespace":"php","kind":"expr_variable","orderable":true},"parentKey":"2_38","properties":{"filename":{"type":"string","value":".\/testbasic\/b.php"},"start_column":{"type":"string","value":"1"},"start_line":{"type":"string","value":"7"},"start_offset":{"type":"string","value":"48"},"end_column":{"type":"string","value":"5"},"end_line":{"type":"string","value":"7"},"end_offset":{"type":"string","value":"52"},"name":{"type":"string","value":"bnum"}},"olderSiblings":[]},
+            {"commonKind":"unknown","key":"2_40","kind":{"namespace":"php","kind":"scalar_lnumber","orderable":true},"parentKey":"2_38","properties":{"filename":{"type":"string","value":".\/testbasic\/b.php"},"start_column":{"type":"string","value":"9"},"start_line":{"type":"string","value":"7"},"start_offset":{"type":"string","value":"56"},"end_column":{"type":"string","value":"9"},"end_line":{"type":"string","value":"7"},"end_offset":{"type":"string","value":"56"},"kind":{"type":"string","value":"10"},"value":{"type":"string","value":"8"}},"olderSiblings":["2_39"]},
+            {"commonKind":"dir","key":"2_2","kind":{"namespace":"php","kind":"dir","orderable":false},"parentKey":"2_1","properties":{"filename":{"type":"string","value":".\/testbasic\/"}},"olderSiblings":[]},
+            {"commonKind":"dir","key":"2_1","kind":{"namespace":"php","kind":"dir","orderable":false},"parentKey":"2","properties":{"filename":{"type":"string","value":"."}},"olderSiblings":[]}
+          ],
+          "Type": "grpc"
+        },
+        "/resource": {
+          "Input": {},
+          "Output": {
+            "Code": 200,
+            "Data": {
+              "name": "testbasic"
+            },
+            "Error": null
+          },
+          "Type": "http"
+        }
+      }
+    },
+    {
+      "Name": "Basic changed file",
+      "Steps": [
+        {
+          "ResourceAction": {
+            "Name": "load-test",
+            "Args": {
+              "name": "testbasic"
+            }
+          },
+          "ParseActions": [
+            {
+              "Name": "changed-files",
+              "Args": {
+                "./testbasic/b.php": "A"
+              }
+            }
+          ]
+        }
+      ],
+      "Endpoints": {
+        "/parse/parse": {
+          "Input": {
+            "trunkKey": "2"
+          },
+          "Output": [
+            {"commonKind":"project","key":"2","kind":{"namespace":"php","kind":"project","orderable":false},"parentKey":"","properties":{},"olderSiblings":[]},
+            {"commonKind":"file","key":"2_3","kind":{"namespace":"php","kind":"file","orderable":true},"parentKey":"2_2","properties":{"filename":{"type":"string","value":".\/testbasic\/b.php"},"start_column":{"type":"string","value":"0"},"start_line":{"type":"string","value":"0"},"start_offset":{"type":"string","value":"0"},"end_column":{"type":"string","value":"0"},"end_line":{"type":"string","value":"0"},"end_offset":{"type":"string","value":"0"}},"olderSiblings":[]},
+            {"commonKind":"stmt","key":"2_4","kind":{"namespace":"php","kind":"stmt_class","orderable":true},"parentKey":"2_3","properties":{"filename":{"type":"string","value":".\/testbasic\/b.php"},"start_column":{"type":"string","value":"1"},"start_line":{"type":"string","value":"3"},"start_offset":{"type":"string","value":"7"},"end_column":{"type":"string","value":"1"},"end_line":{"type":"string","value":"5"},"end_offset":{"type":"string","value":"45"},"flags":{"type":"string","value":"0"},"name":{"type":"string","value":"B"}},"olderSiblings":[]},
+            {"commonKind":"stmt","key":"2_5","kind":{"namespace":"php","kind":"stmt_property","orderable":true},"parentKey":"2_4","properties":{"filename":{"type":"string","value":".\/testbasic\/b.php"},"start_column":{"type":"string","value":"5"},"start_line":{"type":"string","value":"4"},"start_offset":{"type":"string","value":"21"},"end_column":{"type":"string","value":"27"},"end_line":{"type":"string","value":"4"},"end_offset":{"type":"string","value":"43"},"flags":{"type":"string","value":"MODIFIER_PUBLIC | MODIFIER_STATIC (9)"}},"olderSiblings":[]},
+            {"commonKind":"stmt","key":"2_6","kind":{"namespace":"php","kind":"stmt_propertyproperty","orderable":true},"parentKey":"2_5","properties":{"filename":{"type":"string","value":".\/testbasic\/b.php"},"start_column":{"type":"string","value":"19"},"start_line":{"type":"string","value":"4"},"start_offset":{"type":"string","value":"35"},"end_column":{"type":"string","value":"26"},"end_line":{"type":"string","value":"4"},"end_offset":{"type":"string","value":"42"},"name":{"type":"string","value":"num"}},"olderSiblings":[]},
+            {"commonKind":"unknown","key":"2_7","kind":{"namespace":"php","kind":"scalar_lnumber","orderable":true},"parentKey":"2_6","properties":{"filename":{"type":"string","value":".\/testbasic\/b.php"},"start_column":{"type":"string","value":"26"},"start_line":{"type":"string","value":"4"},"start_offset":{"type":"string","value":"42"},"end_column":{"type":"string","value":"26"},"end_line":{"type":"string","value":"4"},"end_offset":{"type":"string","value":"42"},"kind":{"type":"string","value":"10"},"value":{"type":"string","value":"4"}},"olderSiblings":[]},
+            {"commonKind":"unknown","key":"2_8","kind":{"namespace":"php","kind":"expr_assign","orderable":true},"parentKey":"2_3","properties":{"filename":{"type":"string","value":".\/testbasic\/b.php"},"start_column":{"type":"string","value":"1"},"start_line":{"type":"string","value":"7"},"start_offset":{"type":"string","value":"48"},"end_column":{"type":"string","value":"9"},"end_line":{"type":"string","value":"7"},"end_offset":{"type":"string","value":"56"}},"olderSiblings":[]},
+            {"commonKind":"var","key":"2_9","kind":{"namespace":"php","kind":"expr_variable","orderable":true},"parentKey":"2_8","properties":{"filename":{"type":"string","value":".\/testbasic\/b.php"},"start_column":{"type":"string","value":"1"},"start_line":{"type":"string","value":"7"},"start_offset":{"type":"string","value":"48"},"end_column":{"type":"string","value":"5"},"end_line":{"type":"string","value":"7"},"end_offset":{"type":"string","value":"52"},"name":{"type":"string","value":"bnum"}},"olderSiblings":[]},
+            {"commonKind":"unknown","key":"2_10","kind":{"namespace":"php","kind":"scalar_lnumber","orderable":true},"parentKey":"2_8","properties":{"filename":{"type":"string","value":".\/testbasic\/b.php"},"start_column":{"type":"string","value":"9"},"start_line":{"type":"string","value":"7"},"start_offset":{"type":"string","value":"56"},"end_column":{"type":"string","value":"9"},"end_line":{"type":"string","value":"7"},"end_offset":{"type":"string","value":"56"},"kind":{"type":"string","value":"10"},"value":{"type":"string","value":"8"}},"olderSiblings":["2_9"]},
+            {"commonKind":"dir","key":"2_2","kind":{"namespace":"php","kind":"dir","orderable":false},"parentKey":"2_1","properties":{"filename":{"type":"string","value":".\/testbasic\/"}},"olderSiblings":[]},
+            {"commonKind":"dir","key":"2_1","kind":{"namespace":"php","kind":"dir","orderable":false},"parentKey":"2","properties":{"filename":{"type":"string","value":"."}},"olderSiblings":[]}
+          ],
+          "Type": "grpc"
+        },
+        "/resource": {
+          "Input": {},
+          "Output": {
+            "Code": 200,
+            "Data": {
+              "name": "testbasic"
+            },
+            "Error": null
+          },
+          "Type": "http"
+        }
+      }
+    }
+  ]
+}
