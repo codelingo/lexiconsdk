@@ -1,10 +1,13 @@
 ## Setup
 AST lexicons must be built on Linux containers. This means all the binaries referenced in this README can only be run on Linux.
 
-All of the commands in this setup assumes that the working directory is at the root of this repo, ie. `lexiconsdk`.
+All of the commands in this setup assume that the working directory is at the root of this repo, ie. `lexiconsdk`.
 
 
-1. Run `./examples/codelingo/ast/php/setup.sh`
+1. Run `./examples/lexicons/codelingo/ast/php/setup.sh`
+
+    Note: this script requires root permissions to create empty dirs at `/resource`, `/server` and `/testdata` which are required for the AST server.
+
 2. Open a new terminal and run `./bin/ast-server`
     - It should echo something like:
         ```sh
@@ -33,3 +36,4 @@ All of the commands in this setup assumes that the working directory is at the r
       ```
     - This runs a couple of tests run for the PHP lexicon which can be seen in [tests.json](./testdata/tests.json)
     - The `run-tests` command is more complex than `check-parser` since it requires tests to be written for the lexicon, which you are welcome to do.
+6. Run `./examples/lexicons/codelingo/ast/php/teardown.sh` to clean up.
