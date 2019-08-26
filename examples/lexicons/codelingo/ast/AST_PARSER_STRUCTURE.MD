@@ -18,12 +18,13 @@ An outline of the main parts of AST lexicons.
 #### Main function
 
 Runs the lexicon from the command line:
-`./<lexicon_binary> <trunkKey> <baseDir> [changedFiles...]`
+`./<lexicon_binary> --trunkKey=<trunkKey> --base-dir=<baseDir> --ignored-files=<ignoredFiles> --changed-files=<changedFiles>`
 
 The arguments are index based as follows (assuming filename as index 0):
 - [1] trunkKey is an integer. supply to the key manager
 - [2] baseDir is a string. used by file / directory iterator.
-- [3...] changeFiles is a string array. if optionally supplied, only parse files in this array.
+- [3] ignoredFiles is an array of glob expressions. Do no parse these files.
+- [4...] changeFiles is a string array. if optionally supplied, only parse files in this array.
 
 1. Create a key manager instance.
 2. Create a parser instance.
