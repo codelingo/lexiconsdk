@@ -9,11 +9,12 @@ import { KeyManager } from "./KeyManager";
 
 export const KIND_NS = "ts";
 export type EmitterFn = (node: AstNode) => void;
+const COMMON_PLUGINS: babelParser.ParserPlugin[] = ["decorators-legacy", "classProperties"];
 const EXT_PLUGINS: Dictionary<babelParser.ParserPlugin[]> = {
-    ".js": ["decorators-legacy"],
-    ".jsx": ["jsx", "decorators-legacy"],
-    ".ts": ["typescript", "decorators-legacy"],
-    ".tsx": ["typescript", "jsx", "decorators-legacy"],
+    ".js": [...COMMON_PLUGINS],
+    ".jsx": ["jsx", ...COMMON_PLUGINS],
+    ".ts": ["typescript", ...COMMON_PLUGINS],
+    ".tsx": ["typescript", "jsx", ...COMMON_PLUGINS],
 
     // XXX: "decorators" plugin requires a "decoratorsBeforeExport" option -- which we don't know
 };
