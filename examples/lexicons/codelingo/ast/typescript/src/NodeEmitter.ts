@@ -123,12 +123,37 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
             };
         }
 
-        case "FunctionDeclaration":
+        case "ForInStatement":
             return {
-                props: { async: n.async, generator: n.generator, declare: n.declare },
+                namedChildren: { LHS: [n.left], RHS: [n.right] },
+                children: [n.body],
+            };
+
+        case "ForStatement":
+            return {
+                /// XXX: is positional enough here?
+                children: [n.init, n.test, n.update, n.body], // positional
+            };
+
+        case "FunctionDeclaration": {
+            const { async, generator, declare } = n;
+            return {
+                props: { async, generator, declare },
                 children: [n.id, n.body, n.typeParameters, n.returnType],
                 namedChildren: { Parameters: n.params },
             };
+        }
+
+        case "FunctionExpression": {
+            const { async, generator } = n;
+            return {
+                props: { async, generator },
+                children: [n.id, n.body, n.returnType, n.typeParameters],
+                namedChildren: {
+                    Parameters: n.params,
+                },
+            };
+        }
 
         case "Identifier":
             return { props: { name: n.name } };
@@ -192,6 +217,9 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "RegExpLiteral":
             return { props: { pattern: n.pattern, flags: n.flags } };
 
+        case "SequenceExpression":
+            return { namedChildren: { Expressions: n.expressions } };
+
         case "SpreadElement":
             return { children: [n.argument] };
 
@@ -221,6 +249,18 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
 
         case "TSAsExpression":
             return { children: [n.expression, n.typeAnnotation] };
+
+        case "TSEnumDeclaration": {
+            const { const: const_, declare } = n;
+            return {
+                props: { const: const_, declare },
+                children: [n.id],
+                namedChildren: {
+                    Members: n.members,
+                    Initializer: [n.initializer],
+                },
+            };
+        }
 
         case "TSFunctionType":
             return { namedChildren: { Parameters: n.parameters }, children: [n.typeAnnotation, n.typeParameters] };
@@ -324,6 +364,10 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
 
         case "VariableDeclarator":
             return { props: { definite: n.definite }, children: [n.id, n.init] };
+
+        case "WhileStatement":
+            return { children: [n.test, n.body] }; // positional
+
         // -------------------------
 
         case "BinaryExpression":
@@ -335,15 +379,10 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "DoWhileStatement":
         case "EmptyStatement":
         case "File":
-        case "ForInStatement":
-        case "ForStatement":
-        case "FunctionExpression":
         case "LabeledStatement":
         case "ObjectMethod":
-        case "SequenceExpression":
         case "ParenthesizedExpression":
         case "UpdateExpression":
-        case "WhileStatement":
         case "WithStatement":
         case "AssignmentPattern":
         case "ClassExpression":
@@ -467,7 +506,6 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "TSLiteralType":
         case "TSExpressionWithTypeArguments":
         case "TSTypeAliasDeclaration":
-        case "TSEnumDeclaration":
         case "TSEnumMember":
         case "TSModuleDeclaration":
         case "TSModuleBlock":

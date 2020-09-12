@@ -61,6 +61,14 @@ export class AstNodeWalkerBabel {
                 parentKey = astNode.key;
             }
 
+            if (children) {
+                for (const childNode of children) {
+                    if (childNode) {
+                        walkRecursively(childNode, parentKey);
+                    }
+                }
+            }
+
             if (namedChildren) {
                 for (const name in namedChildren) {
                     const nodes: (Node | null)[] | null | undefined = namedChildren[name];
@@ -75,14 +83,6 @@ export class AstNodeWalkerBabel {
                         for (const node of actualNodes) {
                             walkRecursively(node, containerKey);
                         }
-                    }
-                }
-            }
-
-            if (children) {
-                for (const childNode of children) {
-                    if (childNode) {
-                        walkRecursively(childNode, parentKey);
                     }
                 }
             }
