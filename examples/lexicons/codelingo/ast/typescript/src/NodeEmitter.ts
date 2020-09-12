@@ -1,4 +1,4 @@
-import { Node, identifier, blockStatement } from "@babel/types";
+import { Node, identifier, blockStatement, typeAnnotation, typeParameter } from "@babel/types";
 import { Dictionary } from "./AstNode";
 
 type Primitive = string | number | boolean | null | undefined;
@@ -90,6 +90,9 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
 
         case "ConditionalExpression":
             return { children: [n.test, n.consequent, n.alternate] };
+
+        case "ContinueStatement":
+            return { children: [n.label] };
 
         case "Decorator":
             return { children: [n.expression] };
@@ -219,6 +222,9 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "TSAsExpression":
             return { children: [n.expression, n.typeAnnotation] };
 
+        case "TSFunctionType":
+            return { namedChildren: { Parameters: n.parameters }, children: [n.typeAnnotation, n.typeParameters] };
+
         case "TSInterfaceDeclaration":
             return { children: [n.id, n.body], namedChildren: { Extends: n.extends /*, Implements: node.implements, Mixins: node.mixins */ } };
 
@@ -238,6 +244,9 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
 
         case "TSTypeAnnotation":
             return { children: [n.typeAnnotation] };
+
+        case "TSTypeParameterDeclaration":
+            return { namedChildren: { Parameters: n.params } };
 
         case "TSTypeReference":
             return { children: [n.typeName, n.typeParameters] };
@@ -267,6 +276,9 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "TSMethodSignature":
             return { props: { optional: n.optional, computed: n.computed }, children: [n.typeParameters, n.typeAnnotation] };
 
+        case "TSNonNullExpression":
+            return { children: [n.expression] };
+
         case "TSParenthesizedType":
             return { children: [n.typeAnnotation] };
 
@@ -289,6 +301,15 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "TSTypeAssertion":
             return { children: [n.typeAnnotation, n.expression] };
 
+        case "TSTypeLiteral":
+            // XXX: Should this be un-nested? i.e. `{ children: n.members }`
+            return { namedChildren: { Members: n.members } };
+
+        case "TSTypeParameter": {
+            const { name } = n;
+            return { props: { name }, children: [n.constraint, n.default] }; // positional
+        }
+
         case "TSTypeParameterInstantiation":
             return { namedChildren: { Parameters: n.params } };
 
@@ -310,7 +331,6 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "Directive":
         case "DirectiveLiteral":
         case "BreakStatement":
-        case "ContinueStatement":
         case "DebuggerStatement":
         case "DoWhileStatement":
         case "EmptyStatement":
@@ -431,11 +451,9 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "TSDeclareFunction":
         case "TSQualifiedName":
         case "TSIndexSignature":
-        case "TSFunctionType":
         case "TSConstructorType":
         case "TSTypePredicate":
         case "TSTypeQuery":
-        case "TSTypeLiteral":
         case "TSTupleType":
         case "TSOptionalType":
         case "TSRestType":
@@ -459,8 +477,6 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "TSNonNullExpression":
         case "TSExportAssignment":
         case "TSNamespaceExportDeclaration":
-        case "TSTypeParameterDeclaration":
-        case "TSTypeParameter":
         default:
             console.warn(`No handler for "${n.type}"`);
             return undefined;
