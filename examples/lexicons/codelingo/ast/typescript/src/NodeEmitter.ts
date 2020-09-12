@@ -18,6 +18,9 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "ArrayExpression":
             return { namedChildren: { Elements: n.elements } };
 
+        case "ArrayPattern":
+            return { namedChildren: { Elements: n.elements, Decorators: n.decorators }, children: [n.typeAnnotation] };
+
         case "ArrowFunctionExpression":
             return { props: { async: n.async, expression: n.expression, generator: n.generator }, namedChildren: { Parameters: n.params }, children: [n.body, n.returnType, n.typeParameters] };
 
@@ -85,6 +88,9 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
             };
         }
 
+        case "ConditionalExpression":
+            return { children: [n.test, n.consequent, n.alternate] };
+
         case "Decorator":
             return { children: [n.expression] };
 
@@ -104,6 +110,15 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
 
         case "ExpressionStatement":
             return { children: [n.expression] };
+
+        case "ForOfStatement": {
+            const { await } = n;
+            return {
+                props: { await },
+                namedChildren: { LHS: [n.left], RHS: [n.right] },
+                children: [n.body],
+            };
+        }
 
         case "FunctionDeclaration":
             return {
@@ -157,6 +172,9 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "Program":
             return { skipEmit: true, children: n.body };
 
+        case "RestElement":
+            return { children: [n.argument, n.typeAnnotation], namedChildren: { Decorators: n.decorators } };
+
         case "ReturnStatement":
             return { children: [n.argument] };
 
@@ -170,6 +188,18 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
 
         case "RegExpLiteral":
             return { props: { pattern: n.pattern, flags: n.flags } };
+
+        case "SpreadElement":
+            return { children: [n.argument] };
+
+        case "SwitchCase":
+            return { children: [n.test], namedChildren: { Consequent: n.consequent } };
+
+        case "SwitchStatement":
+            return {
+                children: [n.discriminant],
+                namedChildren: { Cases: n.cases },
+            };
 
         case "TemplateElement":
             return { props: { value: n.value.raw, cooked: n.value.cooked, tail: n.tail } };
@@ -185,6 +215,9 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
 
         case "TSArrayType":
             return { children: [n.elementType] };
+
+        case "TSAsExpression":
+            return { children: [n.expression, n.typeAnnotation] };
 
         case "TSInterfaceDeclaration":
             return { children: [n.id, n.body], namedChildren: { Extends: n.extends /*, Implements: node.implements, Mixins: node.mixins */ } };
@@ -234,6 +267,9 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "TSMethodSignature":
             return { props: { optional: n.optional, computed: n.computed }, children: [n.typeParameters, n.typeAnnotation] };
 
+        case "TSParenthesizedType":
+            return { children: [n.typeAnnotation] };
+
         case "TSStringKeyword":
         case "TSAnyKeyword":
         case "TSBooleanKeyword":
@@ -274,7 +310,6 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "Directive":
         case "DirectiveLiteral":
         case "BreakStatement":
-        case "ConditionalExpression":
         case "ContinueStatement":
         case "DebuggerStatement":
         case "DoWhileStatement":
@@ -285,20 +320,14 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "FunctionExpression":
         case "LabeledStatement":
         case "ObjectMethod":
-        case "RestElement":
         case "SequenceExpression":
         case "ParenthesizedExpression":
-        case "SwitchCase":
-        case "SwitchStatement":
         case "UpdateExpression":
         case "WhileStatement":
         case "WithStatement":
         case "AssignmentPattern":
-        case "ArrayPattern":
         case "ClassExpression":
-        case "ForOfStatement":
         case "MetaProperty":
-        case "SpreadElement":
         case "Super":
         case "TaggedTemplateExpression":
         case "YieldExpression":
@@ -414,14 +443,12 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "TSIntersectionType":
         case "TSConditionalType":
         case "TSInferType":
-        case "TSParenthesizedType":
         case "TSTypeOperator":
         case "TSIndexedAccessType":
         case "TSMappedType":
         case "TSLiteralType":
         case "TSExpressionWithTypeArguments":
         case "TSTypeAliasDeclaration":
-        case "TSAsExpression":
         case "TSEnumDeclaration":
         case "TSEnumMember":
         case "TSModuleDeclaration":
