@@ -1,4 +1,4 @@
-import { Node, identifier } from "@babel/types";
+import { Node, identifier, blockStatement } from "@babel/types";
 import { Dictionary } from "./AstNode";
 
 type Primitive = string | number | boolean | null | undefined;
@@ -6,133 +6,225 @@ type Primitive = string | number | boolean | null | undefined;
 export interface EmitInstructions {
     skipEmit?: boolean;
     children?: Array<Node | null | undefined>;
-    namedChildren?: Dictionary<Node[] | null | undefined>;
+    namedChildren?: Dictionary<(Node | null)[] | null | undefined>;
     props?: Dictionary<Primitive>;
 }
 
 const firstIfSame = (a: Node, b: Node): Node[] => (a.start === b.start && a.end === b.end ? [a] : [a, b]);
 
-export const chooseHowToEmit = (node: Node): EmitInstructions | undefined => {
+export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
     // console.warn(node.type);
-    switch (node.type) {
+    switch (n.type) {
+        case "ArrayExpression":
+            return { namedChildren: { Elements: n.elements } };
+
+        case "ArrowFunctionExpression":
+            return { props: { async: n.async, expression: n.expression, generator: n.generator }, namedChildren: { Parameters: n.params }, children: [n.body, n.returnType, n.typeParameters] };
+
         case "AssignmentExpression":
-            return { props: { operator: node.operator }, namedChildren: { LHS: [node.left], RHS: [node.right] } };
+            return { props: { operator: n.operator }, namedChildren: { LHS: [n.left], RHS: [n.right] } };
 
         case "AssignmentPattern":
-            return { children: [node.typeAnnotation], namedChildren: { LHS: [node.left], RHS: [node.right], Decorators: node.decorators } };
+            return { children: [n.typeAnnotation], namedChildren: { LHS: [n.left], RHS: [n.right], Decorators: n.decorators } };
+
+        case "AwaitExpression":
+            return { children: [n.argument] };
+
+        case "BinaryExpression":
+            return { props: { operator: n.operator }, namedChildren: { LHS: [n.left], RHS: [n.right] } };
 
         case "BooleanLiteral":
-            return { props: { value: node.value } };
+            return { props: { value: n.value } };
 
         case "BlockStatement":
-            return { children: node.body };
+            return { children: n.body };
 
         case "CallExpression":
-            return { props: { optional: node.optional }, namedChildren: { arguments: node.arguments }, children: [node.typeArguments, node.typeParameters, node.callee] };
+            return { props: { optional: n.optional }, namedChildren: { arguments: n.arguments }, children: [n.typeArguments, n.typeParameters, n.callee] };
+
+        case "CatchClause":
+            return { children: [n.param, n.body] };
+
+        case "ClassBody":
+            return { children: n.body };
+
+        case "ClassDeclaration":
+            return {
+                props: { abstract: n.abstract, declare: n.declare },
+                namedChildren: {
+                    Decorators: n.decorators,
+                    Implements: n.implements,
+                    Super: [n.superClass, n.superTypeParameters],
+                },
+                children: [n.body, n.typeParameters, n.mixins /* Flow */],
+            };
+
+        case "ClassMethod": {
+            const { access, accessibility, kind, computed, static: static_, generator, async, abstract, optional } = n;
+            return {
+                props: { access, accessibility, kind, computed, static: static_, generator, async, abstract, optional },
+                namedChildren: {
+                    Parameters: n.params,
+                    Decorators: n.decorators,
+                    Key: [n.key],
+                },
+                children: [n.body, n.typeParameters, n.returnType],
+            };
+        }
+
+        case "ClassProperty": {
+            const { computed, static: static_, abstract, accessibility, declare, definite, optional, readonly } = n;
+            return {
+                props: { computed, static: static_, abstract, accessibility, declare, definite, optional, readonly },
+                namedChildren: {
+                    Key: [n.key],
+                    Value: [n.value],
+                    Decorators: n.decorators,
+                },
+                children: [n.typeAnnotation],
+            };
+        }
 
         case "Identifier":
-            return { props: { name: node.name } };
+            return { props: { name: n.name } };
 
         case "ImportDeclaration":
-            return { props: { importKind: node.importKind }, children: [node.source], namedChildren: { Specifiers: node.specifiers } };
+            // XXX: Should node.source be named?
+            return { props: { importKind: n.importKind }, children: [n.source], namedChildren: { Specifiers: n.specifiers } };
 
         case "ImportSpecifier": {
             // if the local name for the import is the same as the imported name
             // then only specify one identity child (the imported)
-            return { children: firstIfSame(node.imported, node.local) };
+            return { children: firstIfSame(n.imported, n.local) };
         }
 
         case "ImportNamespaceSpecifier":
         case "ImportDefaultSpecifier":
-            return { children: [node.local] };
+            return { children: [n.local] };
 
         case "ExportAllDeclaration":
-            return { children: [node.source] };
+            return { children: [n.source] };
 
         case "ExportDefaultDeclaration":
-            return { children: [node.declaration] };
+            return { children: [n.declaration] };
 
         case "ExportNamedDeclaration":
-            return { props: { exportKind: node.exportKind }, children: [node.source, node.declaration], namedChildren: { Specifiers: node.specifiers } };
+            return { props: { exportKind: n.exportKind }, children: [n.source, n.declaration], namedChildren: { Specifiers: n.specifiers } };
 
         case "ExportSpecifier":
             // if the exported name for the import is the same as the local name
             // then only specify one identity child (the local)
-            return { children: firstIfSame(node.local, node.exported) };
+            return { children: firstIfSame(n.local, n.exported) };
 
         case "ExpressionStatement":
-            return { children: [node.expression] };
+            return { children: [n.expression] };
 
         case "FunctionDeclaration":
             return {
-                props: { async: node.async, generator: node.generator, declare: node.declare },
-                children: [node.id, node.body, node.typeParameters, node.returnType],
-                namedChildren: {
-                    Parameters: node.params,
-                },
+                props: { async: n.async, generator: n.generator, declare: n.declare },
+                children: [n.id, n.body, n.typeParameters, n.returnType],
+                namedChildren: { Parameters: n.params },
             };
+
         case "IfStatement":
-            /// TODO: do we need a better way to distinguish if from else?
-            return { children: [node.test, node.consequent, node.alternate] };
+            /// XXX: do we need a better way to distinguish if from else?
+            return { children: [n.test, n.consequent, n.alternate] };
+
+        case "LogicalExpression":
+            return { props: { operator: n.operator }, namedChildren: { LHS: [n.left], RHS: [n.right] } };
 
         case "MemberExpression":
-            return { props: { optional: node.optional, computed: node.computed }, children: [node.object, node.property] };
+            return { props: { optional: n.optional, computed: n.computed }, children: [n.object, n.property] };
+
+        case "NewExpression":
+            return { props: { optional: n.optional }, children: [n.callee, n.typeParameters, n.typeArguments /* Flow */] };
 
         case "Noop":
             return {};
 
         case "ObjectExpression":
-            return { namedChildren: { Properties: node.properties } };
+            return { namedChildren: { Properties: n.properties } };
 
         case "ObjectProperty":
-            return { props: { computed: node.computed, shorthand: node.shorthand }, namedChildren: { Decorators: node.decorators }, children: [node.key, node.value] };
+            return { props: { computed: n.computed, shorthand: n.shorthand }, namedChildren: { Decorators: n.decorators }, children: [n.key, n.value] };
 
         case "Program":
-            return { skipEmit: true, children: node.body };
+            return { skipEmit: true, children: n.body };
 
         case "ReturnStatement":
-            return { children: [node.argument] };
+            return { children: [n.argument] };
 
+        case "BooleanLiteral":
+        case "NumericLiteral":
         case "StringLiteral":
-            return { props: { value: node.value } };
+            return { props: { value: n.value } };
 
-        case "TemplateElement":
-            return { props: { value: node.value.raw, cooked: node.value.cooked, tail: node.tail } };
-
-        case "TemplateLiteral":
-            return { namedChildren: { Quasis: node.quasis, Expressions: node.expressions } };
-
-        case "TSInterfaceDeclaration":
-            return { children: [node.id, node.body], namedChildren: { Extends: node.extends /*, Implements: node.implements, Mixins: node.mixins */ } };
-
-        case "InterfaceDeclaration":
-            return { children: [node.id, node.body], namedChildren: { Extends: node.extends, Implements: node.implements, Mixins: node.mixins } };
-
-        case "TSInterfaceBody":
-            return { skipEmit: true, children: node.body };
-
-        case "TSPropertySignature":
-            return { children: [node.key, node.typeAnnotation], props: { computed: node.computed } };
-
-        case "TSTypeAnnotation":
-            return { children: [node.typeAnnotation] };
-
-        case "TSTypeReference":
-            return { children: [node.typeName, node.typeParameters] };
-
-        case "TSCallSignatureDeclaration":
-            return { children: [node.typeAnnotation, node.typeParameters], namedChildren: { Parameters: node.parameters } };
-
-        case "InterfaceExtends":
-            return { children: [node.id] };
-
+        case "NullLiteral":
             return {};
 
-        case "TSConstructSignatureDeclaration":
-            return { children: [node.typeParameters, node.typeAnnotation], namedChildren: { Parameters: node.parameters } };
+        case "RegExpLiteral":
+            return { props: { pattern: n.pattern, flags: n.flags } };
 
+        case "TemplateElement":
+            return { props: { value: n.value.raw, cooked: n.value.cooked, tail: n.tail } };
+
+        case "TemplateLiteral":
+            return { namedChildren: { Quasis: n.quasis, Expressions: n.expressions } };
+
+        case "ThrowStatement":
+            return { children: [n.argument] };
+
+        case "TryStatement":
+            return { children: [n.block, n.handler, n.finalizer] };
+
+        case "TSArrayType":
+            return { children: [n.elementType] };
+
+        case "TSInterfaceDeclaration":
+            return { children: [n.id, n.body], namedChildren: { Extends: n.extends /*, Implements: node.implements, Mixins: node.mixins */ } };
+
+        case "InterfaceDeclaration":
+            return { children: [n.id, n.body], namedChildren: { Extends: n.extends, Implements: n.implements, Mixins: n.mixins } };
+
+        case "TSInterfaceBody":
+            return { skipEmit: true, children: n.body };
+
+        case "TSPropertySignature":
+            return { children: [n.key, n.typeAnnotation], props: { computed: n.computed } };
+
+        case "TSTypeAnnotation":
+            return { children: [n.typeAnnotation] };
+
+        case "TSTypeReference":
+            return { children: [n.typeName, n.typeParameters] };
+
+        case "TSCallSignatureDeclaration":
+            return { children: [n.typeAnnotation, n.typeParameters], namedChildren: { Parameters: n.parameters } };
+
+        case "InterfaceExtends":
+            return { children: [n.id] };
+
+        case "TSConstructSignatureDeclaration":
+            return { children: [n.typeParameters, n.typeAnnotation], namedChildren: { Parameters: n.parameters } };
+
+        case "TSDeclareMethod": {
+            const { abstract, access, accessibility, async, computed, generator, kind, optional, static: static_ } = n;
+            return {
+                props: { abstract, access, accessibility, async, computed, generator, kind, optional, static: static_ },
+                namedChildren: {
+                    Decorators: n.decorators,
+                    Key: [n.key],
+                    Parameters: n.params,
+                },
+                children: [
+                    n.typeParameters,
+                    n.returnType,
+                ]
+            };
+        }
+        
         case "TSMethodSignature":
-            return { props: { optional: node.optional, computed: node.computed }, children: [node.typeParameters, node.typeAnnotation] };
+            return { props: { optional: n.optional, computed: n.computed }, children: [n.typeParameters, n.typeAnnotation] };
 
         case "TSStringKeyword":
         case "TSAnyKeyword":
@@ -149,20 +241,30 @@ export const chooseHowToEmit = (node: Node): EmitInstructions | undefined => {
         case "TSThisType":
             return {};
 
+        case "TSTypeAssertion":
+            return { children: [n.typeAnnotation, n.expression] };
+
+        case "TSTypeParameterInstantiation":
+            return { namedChildren: { Parameters: n.params } };
+
+        case "TSUnionType":
+            return { namedChildren: { Types: n.types } };
+
+        case "UnaryExpression":
+            return { props: { prefix: n.prefix, operator: n.operator }, children: [n.argument] };
+
         case "VariableDeclaration":
-            return { props: { kind: node.kind, declare: node.declare }, namedChildren: { Declarations: node.declarations } };
+            return { props: { kind: n.kind, declare: n.declare }, namedChildren: { Declarations: n.declarations } };
 
         case "VariableDeclarator":
-            return { props: { definite: node.definite }, children: [node.id, node.init] };
+            return { props: { definite: n.definite }, children: [n.id, n.init] };
         // -------------------------
 
-        case "ArrayExpression":
         case "BinaryExpression":
         case "InterpreterDirective":
         case "Directive":
         case "DirectiveLiteral":
         case "BreakStatement":
-        case "CatchClause":
         case "ConditionalExpression":
         case "ContinueStatement":
         case "DebuggerStatement":
@@ -173,12 +275,6 @@ export const chooseHowToEmit = (node: Node): EmitInstructions | undefined => {
         case "ForStatement":
         case "FunctionExpression":
         case "LabeledStatement":
-        case "NumericLiteral":
-        case "NullLiteral":
-        case "BooleanLiteral":
-        case "RegExpLiteral":
-        case "LogicalExpression":
-        case "NewExpression":
         case "ObjectMethod":
         case "RestElement":
         case "SequenceExpression":
@@ -186,27 +282,19 @@ export const chooseHowToEmit = (node: Node): EmitInstructions | undefined => {
         case "SwitchCase":
         case "SwitchStatement":
         case "ThisExpression":
-        case "ThrowStatement":
-        case "TryStatement":
-        case "UnaryExpression":
         case "UpdateExpression":
         case "WhileStatement":
         case "WithStatement":
         case "AssignmentPattern":
         case "ArrayPattern":
-        case "ArrowFunctionExpression":
-        case "ClassBody":
         case "ClassExpression":
-        case "ClassDeclaration":
         case "ForOfStatement":
         case "MetaProperty":
-        case "ClassMethod":
         case "ObjectPattern":
         case "SpreadElement":
         case "Super":
         case "TaggedTemplateExpression":
         case "YieldExpression":
-        case "AwaitExpression":
         case "Import":
         case "BigIntLiteral":
         case "ExportNamespaceSpecifier":
@@ -292,7 +380,6 @@ export const chooseHowToEmit = (node: Node): EmitInstructions | undefined => {
         case "V8IntrinsicIdentifier":
         case "ArgumentPlaceholder":
         case "BindExpression":
-        case "ClassProperty":
         case "PipelineTopicExpression":
         case "PipelineBareFunction":
         case "PipelinePrimaryTopicReference":
@@ -308,7 +395,6 @@ export const chooseHowToEmit = (node: Node): EmitInstructions | undefined => {
         case "DecimalLiteral":
         case "TSParameterProperty":
         case "TSDeclareFunction":
-        case "TSDeclareMethod":
         case "TSQualifiedName":
         case "TSIndexSignature":
         case "TSFunctionType":
@@ -316,12 +402,10 @@ export const chooseHowToEmit = (node: Node): EmitInstructions | undefined => {
         case "TSTypePredicate":
         case "TSTypeQuery":
         case "TSTypeLiteral":
-        case "TSArrayType":
         case "TSTupleType":
         case "TSOptionalType":
         case "TSRestType":
         case "TSNamedTupleMember":
-        case "TSUnionType":
         case "TSIntersectionType":
         case "TSConditionalType":
         case "TSInferType":
@@ -333,7 +417,6 @@ export const chooseHowToEmit = (node: Node): EmitInstructions | undefined => {
         case "TSExpressionWithTypeArguments":
         case "TSTypeAliasDeclaration":
         case "TSAsExpression":
-        case "TSTypeAssertion":
         case "TSEnumDeclaration":
         case "TSEnumMember":
         case "TSModuleDeclaration":
@@ -344,11 +427,10 @@ export const chooseHowToEmit = (node: Node): EmitInstructions | undefined => {
         case "TSNonNullExpression":
         case "TSExportAssignment":
         case "TSNamespaceExportDeclaration":
-        case "TSTypeParameterInstantiation":
         case "TSTypeParameterDeclaration":
         case "TSTypeParameter":
         default:
-            console.warn(`No handler for "${node.type}"`);
+            console.warn(`No handler for "${n.type}"`);
             return undefined;
     }
 };

@@ -46,13 +46,8 @@ export class AstNodeWalkerBabel {
             if (!skipEmit) {
                 const kind = node.type;
                 const properties = props
-                    ? {
-                          ...makeCommonProperties(this.filename, node),
-                          ...makeProperties(props),
-                      }
-                    : {
-                          ...makeCommonProperties(this.filename, node),
-                      };
+                    ? { ...makeCommonProperties(this.filename, node), ...makeProperties(props) }
+                    : { ...makeCommonProperties(this.filename, node), };
                 const astNode: AstNode = {
                     commonKind: kind,
                     kind: { kind, namespace: KIND_NS, orderable: true },
@@ -68,14 +63,16 @@ export class AstNodeWalkerBabel {
 
             if (namedChildren) {
                 for (const name in namedChildren) {
-                    const nodes: Node[] | null | undefined = namedChildren[name];
+                    const nodes: (Node | null)[] | null | undefined = namedChildren[name];
                     if (!nodes) {
                         continue;
                     }
 
-                    if (nodes.length > 0) {
-                        const containerKey = this.emitContainerNode(nodes, name, parentKey);
-                        for (const node of nodes) {
+                    const actualNodes: Node[] = nodes.filter((n) => !!n) as Node[];
+
+                    if (actualNodes.length > 0) {
+                        const containerKey = this.emitContainerNode(actualNodes, name, parentKey);
+                        for (const node of actualNodes) {
                             walkRecursively(node, containerKey);
                         }
                     }

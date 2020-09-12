@@ -2,13 +2,21 @@ import * as babelParser from "@babel/parser";
 import fs from "fs";
 import path from "path";
 import ts from "typescript";
-import { AstNode, makeProperty } from "./AstNode";
+import { AstNode, makeProperty, Dictionary } from "./AstNode";
 import { AstNodeWalkerBabel } from "./AstNodeWalkerBabel";
 import { AstNodeWalkerTypeScript } from "./AstNodeWalkerTypeScript";
 import { KeyManager } from "./KeyManager";
 
 export const KIND_NS = "ts";
 export type EmitterFn = (node: AstNode) => void;
+const EXT_PLUGINS: Dictionary<babelParser.ParserPlugin[]> = {
+    ".js": ["decorators-legacy"],
+    ".jsx": ["jsx", "decorators-legacy"],
+    ".ts": ["typescript", "decorators-legacy"],
+    ".tsx": ["typescript", "jsx", "decorators-legacy"],
+
+    // XXX: "decorators" plugin requires a "decoratorsBeforeExport" option -- which we don't know
+};
 
 export function parseProject(trunkKey: string, baseDirStr: string, filepaths: string[] = [], emitter: EmitterFn) {
     const files: Set<string> = getFileSet(filepaths);
@@ -46,7 +54,7 @@ export class Parser {
     private readonly keyMan: KeyManager;
     private readonly files: Set<string>;
     private readonly parseAll: boolean;
-    private readonly allowedExtensions = [".ts"];
+    private readonly allowedExtensions = [".js", ".jsx", ".ts", ".tsx"];
     private readonly emit: (node: AstNode) => void;
 
     constructor(baseDir: string, keyMan: KeyManager, files: Set<string>, emitter: EmitterFn) {
@@ -139,12 +147,10 @@ export class Parser {
     }
 
     private parseASTUsingBabel(relFilePath: string, code: string, parentKey: string) {
+        const ext = path.extname(relFilePath);
         const sourceFile = babelParser.parse(code, {
-            sourceType: "unambiguous", 
-            plugins: [
-                "jsx",
-                "typescript",
-            ]
+            sourceType: "unambiguous",
+            plugins: EXT_PLUGINS[ext],
         });
         const nodeWalker = new AstNodeWalkerBabel(relFilePath, this.keyMan, this.emit);
         nodeWalker.walk(sourceFile, parentKey);

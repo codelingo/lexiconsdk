@@ -1,7 +1,7 @@
 import { AstNode } from "./AstNode";
 import { parseProject } from "./Parser";
 
-const printNode = (node: AstNode) => console.log(JSON.stringify(node));
+const printNode = (node: AstNode) => {}; //console.log(JSON.stringify(node));
 
 function main(args: string[]) {
     const [_, __, method, ...rest] = args;
