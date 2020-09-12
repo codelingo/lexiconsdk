@@ -22,8 +22,8 @@ export interface Dictionary<T> {
     [key: string]: T;
 }
 
-export function makeProperty(key: string, value: null | number | string | boolean): Property {
-    if (value === null) {
+export function makeProperty(key: string, value: null | undefined | number | string | boolean): Property {
+    if (value === null || value === undefined) {
         return { type: "null", value: "" };
     }
 

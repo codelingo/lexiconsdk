@@ -1,10 +1,14 @@
+import * as babelParser from "@babel/parser";
 import fs from "fs";
 import path from "path";
+import ts from "typescript";
 import { AstNode, makeProperty } from "./AstNode";
+import { AstNodeWalkerBabel } from "./AstNodeWalkerBabel";
+import { AstNodeWalkerTypeScript } from "./AstNodeWalkerTypeScript";
 import { KeyManager } from "./KeyManager";
 
-const KIND_NS = "ts";
-type EmitterFn = (node: AstNode) => void;
+export const KIND_NS = "ts";
+export type EmitterFn = (node: AstNode) => void;
 
 export function parseProject(trunkKey: string, baseDirStr: string, filepaths: string[] = [], emitter: EmitterFn) {
     const files: Set<string> = getFileSet(filepaths);
@@ -125,9 +129,31 @@ export class Parser {
 
         this.emit(fileNode);
 
-        // var nodeWalker = new S
+        const code = fs.readFileSync(absFilePath, "utf8");
+
+        this.parseASTUsingBabel(relFilePath, code, fileNode.key);
+
+        // this.parseASTUsingTypeScript(relFilePath, code, fileNode);
 
         return true;
+    }
+
+    private parseASTUsingBabel(relFilePath: string, code: string, parentKey: string) {
+        const sourceFile = babelParser.parse(code, {
+            sourceType: "unambiguous", 
+            plugins: [
+                "jsx",
+                "typescript",
+            ]
+        });
+        const nodeWalker = new AstNodeWalkerBabel(relFilePath, this.keyMan, this.emit);
+        nodeWalker.walk(sourceFile, parentKey);
+    }
+
+    private parseASTUsingTypeScript(relFilePath: string, code: string, parentKey: string) {
+        const sourceFile = ts.createSourceFile(relFilePath, code, ts.ScriptTarget.Latest);
+        const nodeWalker = new AstNodeWalkerTypeScript(relFilePath, this.keyMan, this.emit);
+        nodeWalker.walk(sourceFile, parentKey);
     }
 }
 
