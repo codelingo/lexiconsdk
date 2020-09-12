@@ -85,22 +85,8 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
             };
         }
 
-        case "Identifier":
-            return { props: { name: n.name } };
-
-        case "ImportDeclaration":
-            // XXX: Should node.source be named?
-            return { props: { importKind: n.importKind }, children: [n.source], namedChildren: { Specifiers: n.specifiers } };
-
-        case "ImportSpecifier": {
-            // if the local name for the import is the same as the imported name
-            // then only specify one identity child (the imported)
-            return { children: firstIfSame(n.imported, n.local) };
-        }
-
-        case "ImportNamespaceSpecifier":
-        case "ImportDefaultSpecifier":
-            return { children: [n.local] };
+        case "Decorator":
+            return { children: [n.expression] };
 
         case "ExportAllDeclaration":
             return { children: [n.source] };
@@ -126,9 +112,26 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
                 namedChildren: { Parameters: n.params },
             };
 
+        case "Identifier":
+            return { props: { name: n.name } };
+
         case "IfStatement":
             /// XXX: do we need a better way to distinguish if from else?
             return { children: [n.test, n.consequent, n.alternate] };
+
+        case "ImportDeclaration":
+            // XXX: Should node.source be named?
+            return { props: { importKind: n.importKind }, children: [n.source], namedChildren: { Specifiers: n.specifiers } };
+
+        case "ImportSpecifier": {
+            // if the local name for the import is the same as the imported name
+            // then only specify one identity child (the imported)
+            return { children: firstIfSame(n.imported, n.local) };
+        }
+
+        case "ImportNamespaceSpecifier":
+        case "ImportDefaultSpecifier":
+            return { children: [n.local] };
 
         case "LogicalExpression":
             return { props: { operator: n.operator }, namedChildren: { LHS: [n.left], RHS: [n.right] } };
@@ -144,6 +147,9 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
 
         case "ObjectExpression":
             return { namedChildren: { Properties: n.properties } };
+
+        case "ObjectPattern":
+            return { namedChildren: { Properties: n.properties, Decorators: n.decorators }, children: [n.typeAnnotation] };
 
         case "ObjectProperty":
             return { props: { computed: n.computed, shorthand: n.shorthand }, namedChildren: { Decorators: n.decorators }, children: [n.key, n.value] };
@@ -189,6 +195,11 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "TSInterfaceBody":
             return { skipEmit: true, children: n.body };
 
+        case "TSParameterProperty": {
+            const { accessibility, readonly } = n;
+            return { props: { accessibility, readonly }, children: [n.parameter] };
+        }
+
         case "TSPropertySignature":
             return { children: [n.key, n.typeAnnotation], props: { computed: n.computed } };
 
@@ -216,13 +227,10 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
                     Key: [n.key],
                     Parameters: n.params,
                 },
-                children: [
-                    n.typeParameters,
-                    n.returnType,
-                ]
+                children: [n.typeParameters, n.returnType],
             };
         }
-        
+
         case "TSMethodSignature":
             return { props: { optional: n.optional, computed: n.computed }, children: [n.typeParameters, n.typeAnnotation] };
 
@@ -239,6 +247,7 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "TSUnknownKeyword":
         case "TSVoidKeyword":
         case "TSThisType":
+        case "ThisExpression":
             return {};
 
         case "TSTypeAssertion":
@@ -281,7 +290,6 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "ParenthesizedExpression":
         case "SwitchCase":
         case "SwitchStatement":
-        case "ThisExpression":
         case "UpdateExpression":
         case "WhileStatement":
         case "WithStatement":
@@ -290,7 +298,6 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "ClassExpression":
         case "ForOfStatement":
         case "MetaProperty":
-        case "ObjectPattern":
         case "SpreadElement":
         case "Super":
         case "TaggedTemplateExpression":
@@ -386,14 +393,12 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "ClassPrivateProperty":
         case "ClassPrivateMethod":
         case "ImportAttribute":
-        case "Decorator":
         case "DoExpression":
         case "ExportDefaultSpecifier":
         case "PrivateName":
         case "RecordExpression":
         case "TupleExpression":
         case "DecimalLiteral":
-        case "TSParameterProperty":
         case "TSDeclareFunction":
         case "TSQualifiedName":
         case "TSIndexSignature":
