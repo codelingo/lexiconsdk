@@ -68,9 +68,6 @@ export const shapeNode = (n: Node): EmitInstructions | undefined => {
                 ],
             };
 
-        case "BooleanLiteral":
-            return { props: { value: n.value } };
-
         case "BlockStatement":
             return { children: [...n.body] };
 
@@ -248,7 +245,7 @@ export const shapeNode = (n: Node): EmitInstructions | undefined => {
                         keepWhenEmpty: true,
                     },
                     {
-                        kind: "upd",
+                        kind: "update",
                         nodes: [n.update], //optional
                         keepWhenEmpty: true,
                     },
@@ -943,7 +940,7 @@ export const shapeNode = (n: Node): EmitInstructions | undefined => {
         // -------------------------
         case "File":
 
-        /// "Flow" types below
+        // "Flow" types below
         case "MetaProperty":
         case "ExportNamespaceSpecifier":
         case "AnyTypeAnnotation":

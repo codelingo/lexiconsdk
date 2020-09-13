@@ -1,4 +1,3 @@
-import { SourceLocation } from "@babel/types";
 
 export const NAMESPACE = "ts";
 
