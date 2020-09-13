@@ -152,6 +152,12 @@ export class Parser {
         const sourceFile = babelParser.parse(code, {
             sourceType: "unambiguous",
             plugins: EXT_PLUGINS[ext],
+            // be _very_ permissive
+            allowUndeclaredExports: true,
+            allowAwaitOutsideFunction: true,
+            allowImportExportEverywhere: true,
+            allowReturnOutsideFunction: true,
+            allowSuperOutsideMethod: true,
         });
         const nodeWalker = new AstNodeWalkerBabel(relFilePath, this.keyMan, this.emit);
         nodeWalker.walk(sourceFile, parentKey);
