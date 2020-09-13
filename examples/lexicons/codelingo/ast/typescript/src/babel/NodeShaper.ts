@@ -1,8 +1,8 @@
-import { Node, typeParameter, typeAnnotation } from "@babel/types";
+import { Node } from "@babel/types";
 import { firstIfSame } from "./helpers";
-import { EmitInstructions, EmitInstructions_v2 } from "./model";
+import { EmitInstructions } from "./model";
 
-export const shapeNodeForEmit = (n: Node): EmitInstructions_v2 | undefined => {
+export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
     // console.warn(node.type);
     switch (n.type) {
         case "ArrayExpression":
@@ -55,6 +55,9 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions_v2 | undefined => {
 
         case "AwaitExpression":
             return { children: [n.argument] };
+
+        case "BigIntLiteral":
+            return { props: { value: n.value } };
 
         case "BinaryExpression":
             return {
@@ -172,6 +175,18 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions_v2 | undefined => {
                     n.id,
                     n.predicate, // optional
                 ],
+            };
+
+        case "Directive":
+            return { children: [n.value] };
+
+        case "DirectiveLiteral":
+        case "InterpreterDirective":
+            return { props: { value: n.value } };
+
+        case "DoExpression":
+            return {
+                children: [n.body],
             };
 
         case "DoWhileStatement":
@@ -301,6 +316,9 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions_v2 | undefined => {
         case "ImportNamespaceSpecifier":
         case "ImportDefaultSpecifier":
             return { children: [n.local] };
+
+        case "ParenthesizedExpression":
+            return { children: [n.expression] };
 
         case "JSXAttribute":
             return {
@@ -788,9 +806,18 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions_v2 | undefined => {
         case "TSNamespaceExportDeclaration":
             return { children: [n.id] };
 
+        case "TSNamedTupleMember": {
+            const { optional } = n;
+            return {
+                props: { optional },
+                children: [n.label, n.elementType],
+            };
+        }
+
         case "TSNonNullExpression":
             return { children: [n.expression] };
 
+        case "TSOptionalType":
         case "TSParenthesizedType":
         case "TSRestType":
         case "TSTypeAnnotation":
@@ -905,6 +932,11 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions_v2 | undefined => {
                 positional: true,
             };
 
+        case "WithStatement":
+            return {
+                children: [n.object, n.body],
+            };
+
         case "YieldExpression":
             const { delegate } = n;
             return {
@@ -913,17 +945,10 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions_v2 | undefined => {
             };
 
         // -------------------------
-
-        case "BinaryExpression":
-        case "InterpreterDirective":
-        case "Directive":
-        case "DirectiveLiteral":
         case "File":
-        case "ParenthesizedExpression":
-        case "WithStatement":
-        case "AssignmentPattern":
+
+        /// "Flow" types below
         case "MetaProperty":
-        case "BigIntLiteral":
         case "ExportNamespaceSpecifier":
         case "AnyTypeAnnotation":
         case "ArrayTypeAnnotation":
@@ -976,6 +1001,8 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions_v2 | undefined => {
         case "UnionTypeAnnotation":
         case "Variance":
         case "VoidTypeAnnotation":
+
+        // Bleeding-edge stuff
         case "EnumDeclaration":
         case "EnumBooleanBody":
         case "EnumNumberBody":
@@ -995,15 +1022,11 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions_v2 | undefined => {
         case "ClassPrivateProperty":
         case "ClassPrivateMethod":
         case "ImportAttribute":
-        case "DoExpression":
         case "ExportDefaultSpecifier":
         case "PrivateName":
         case "RecordExpression":
         case "TupleExpression":
         case "DecimalLiteral":
-        case "TSOptionalType":
-        case "TSNamedTupleMember":
-        case "TSNonNullExpression":
         default:
             console.warn(`No shaper for "${n.type}"`);
             return undefined;

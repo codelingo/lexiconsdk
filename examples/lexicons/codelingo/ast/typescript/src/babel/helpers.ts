@@ -1,11 +1,13 @@
-
-
-import { SourceLocation, Node } from "@babel/types";
+import { Node } from "@babel/types";
 import { Dictionary, Property } from "../common/model";
 
-export const makeCommonPropertiesBabel = (filename: string, startNode: Node, endNode: Node = startNode): Dictionary<Property> => {
-    const { start } = startNode.loc!;
-    const { end } = endNode.loc!;
+export const makeCommonPropertiesBabel = (
+    filename: string,
+    startNode: Node,
+    endNode: Node = startNode
+): Dictionary<Property> => {
+    const start = startNode.loc?.start;
+    const end = endNode.loc?.end;
 
     return {
         // filename: makeProperty("filename", filename),

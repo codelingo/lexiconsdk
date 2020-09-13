@@ -5,7 +5,7 @@ import { KeyManager } from "../common/KeyManager";
 import { AstNode, Dictionary, EmitterFn, NAMESPACE } from "../common/model";
 import { makeProperties } from "../common/property";
 import { makeCommonPropertiesBabel } from "./helpers";
-import { EmitInstructions } from "./model";
+import { EmitInstructions, isNesting } from "./model";
 import { shapeNodeForEmit } from "./NodeShaper";
 
 const COMMON_PLUGINS: babelParser.ParserPlugin[] = [
@@ -63,10 +63,19 @@ export class ParserBabel {
     }
 
     public walk(sourceFile: File, parentKey: string) {
-        const emit = (node: Node, parentKey: string, { props, namedChildren, children, skipEmit, positional }: EmitInstructions) => {
+        const walkRecursively = (node: Node, parentKey: string) => {
+            const instructions = shapeNodeForEmit(node);
+            if (instructions !== undefined) {
+                emit(node, parentKey, instructions);
+            }
+        };
+
+        const emit = (node: Node, parentKey: string, { props, children, skipEmit, positional }: EmitInstructions) => {
             if (!skipEmit) {
                 const kind = node.type;
-                const properties = props ? { ...makeCommonPropertiesBabel(this.filename, node), ...makeProperties(props) } : { ...makeCommonPropertiesBabel(this.filename, node) };
+                const properties = props
+                    ? { ...makeCommonPropertiesBabel(this.filename, node), ...makeProperties(props) }
+                    : { ...makeCommonPropertiesBabel(this.filename, node) };
                 const astNode: AstNode = {
                     commonKind: kind,
                     kind: { kind, namespace: NAMESPACE, orderable: positional === true },
@@ -80,37 +89,27 @@ export class ParserBabel {
                 parentKey = astNode.key;
             }
 
-            if (children) {
-                for (const childNode of children) {
-                    if (childNode) {
-                        walkRecursively(childNode, parentKey);
-                    }
-                }
+            if (!children) {
+                return;
             }
 
-            if (namedChildren) {
-                for (const name in namedChildren) {
-                    const nodes: (Node | null)[] | null | undefined = namedChildren[name];
-                    if (!nodes) {
-                        continue;
-                    }
+            for (const childNode of children) {
+                if (!childNode) {
+                    continue;
+                }
 
-                    const actualNodes: Node[] = nodes.filter((n) => !!n) as Node[];
-
-                    if (actualNodes.length > 0) {
-                        const containerKey = this.emitContainerNode(actualNodes, name, parentKey);
-                        for (const node of actualNodes) {
+                if (isNesting(childNode)) {
+                    const { nodes: rawNodes, kind, keepWhenEmpty } = childNode;
+                    const nodes = (rawNodes ?? []).filter((n) => !!n) as Node[];
+                    if (nodes.length > 0 || keepWhenEmpty) {
+                        const containerKey = this.emitContainerNode(nodes, kind, parentKey, node);
+                        for (const node of nodes) {
                             walkRecursively(node, containerKey);
                         }
                     }
+                } else {
+                    walkRecursively(childNode, parentKey);
                 }
-            }
-        };
-
-        const walkRecursively = (node: Node, parentKey: string) => {
-            const instructions = shapeNodeForEmit(node);
-            if (instructions !== undefined) {
-                emit(node, parentKey, instructions);
             }
         };
 
@@ -147,9 +146,9 @@ export class ParserBabel {
         // }
     }
 
-    private emitContainerNode(nodes: Node[], containerKind: string, parentKey: string): string {
-        const first = nodes[0];
-        const last = nodes[nodes.length - 1];
+    private emitContainerNode(nodes: Node[], containerKind: string, parentKey: string, fallbackNode: Node): string {
+        const first = nodes[0] ?? fallbackNode;
+        const last = nodes[nodes.length - 1] ?? fallbackNode;
 
         const properties = {
             ...makeCommonPropertiesBabel(this.filename, first, last),

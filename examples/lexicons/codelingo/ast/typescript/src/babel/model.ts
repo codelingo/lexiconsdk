@@ -5,21 +5,17 @@ type Primitive = string | number | boolean | null | undefined;
 
 export interface EmitInstructions {
     skipEmit?: boolean;
-    children?: Array<Node | null | undefined>;
-    namedChildren?: Dictionary<Array<Node | null> | null | undefined>;
+    children?: Array<Node | Nesting | null | undefined>;
     props?: Dictionary<Primitive>;
-    positional?: true | undefined;
+    positional?: true;
 }
 
-export interface ChildSpec {
+export interface Nesting {
     kind: string;
-    nodes: Array<Node | null | undefined> | Node | null | undefined;
+    nodes: Array<Node | null | undefined> | null | undefined;
     keepWhenEmpty?: true;
 }
 
-export interface EmitInstructions_v2 {
-    skipEmit?: boolean;
-    children?: Array<Node | ChildSpec | null | undefined>;
-    props?: Dictionary<Primitive>;
-    positional?: true;
+export function isNesting(item: Node | Nesting): item is Nesting {
+    return "kind" in item;
 }
