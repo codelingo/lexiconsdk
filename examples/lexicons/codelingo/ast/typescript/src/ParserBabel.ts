@@ -19,18 +19,31 @@ const EXT_PLUGINS: Dictionary<babelParser.ParserPlugin[]> = {
 
 export function parseBabel(relativeFilePath: string, code: string, parentKey: string, keyMan: KeyManager, emitter: EmitterFn) {
     const ext = path.extname(relativeFilePath);
-    const sourceFile = babelParser.parse(code, {
-        sourceType: "unambiguous",
-        plugins: EXT_PLUGINS[ext],
-        // be _very_ permissive
-        allowUndeclaredExports: true,
-        allowAwaitOutsideFunction: true,
-        allowImportExportEverywhere: true,
-        allowReturnOutsideFunction: true,
-        allowSuperOutsideMethod: true,
-    });
-    const nodeWalker = new ParserBabel(relativeFilePath, keyMan, emitter);
-    nodeWalker.walk(sourceFile, parentKey);
+
+    let sourceFile: File;
+    try {
+        sourceFile = babelParser.parse(code, {
+            sourceType: "unambiguous",
+            plugins: EXT_PLUGINS[ext],
+            // be _very_ permissive
+            allowUndeclaredExports: true,
+            allowAwaitOutsideFunction: true,
+            allowImportExportEverywhere: true,
+            allowReturnOutsideFunction: true,
+            allowSuperOutsideMethod: true,
+            strictMode: false,
+        });
+    } catch (e) {
+        console.error(`Error parsing "${relativeFilePath}": ${e.message}`);
+        return;
+    }
+
+    try {
+        const nodeWalker = new ParserBabel(relativeFilePath, keyMan, emitter);
+        nodeWalker.walk(sourceFile, parentKey);
+    } catch (e) {
+        console.error(`Error walking "${relativeFilePath}": ${e.message}`);
+    }
 }
 
 export class ParserBabel {

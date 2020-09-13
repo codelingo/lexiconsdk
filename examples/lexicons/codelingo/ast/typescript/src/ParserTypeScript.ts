@@ -1,7 +1,6 @@
 import { KeyManager } from "./KeyManager";
 import ts from "typescript";
-import { AstNode, makeProperty } from "./AstNode";
-import { KIND_NS, EmitterFn } from "./Parser";
+import { AstNode, makeProperty, EmitterFn, NAMESPACE } from "./Model";
 
 export class AstNodeWalkerTypeScript {
     private readonly filename: string;
@@ -25,7 +24,7 @@ export class AstNodeWalkerTypeScript {
             const kind = ts.SyntaxKind[node.kind];
             const astNode: AstNode = {
                 commonKind: kind,
-                kind: { kind, namespace: KIND_NS, orderable: true },
+                kind: { kind, namespace: NAMESPACE, orderable: true },
                 key: this.keyMan.getKey(),
                 parentKey: parentKey,
                 olderSiblings: [],

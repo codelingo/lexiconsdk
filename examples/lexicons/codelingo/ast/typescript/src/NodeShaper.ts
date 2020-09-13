@@ -1,5 +1,5 @@
-import { Node, identifier, blockStatement, typeAnnotation, typeParameter } from "@babel/types";
-import { Dictionary } from "./AstNode";
+import { Node } from "@babel/types";
+import { Dictionary } from "./model";
 
 type Primitive = string | number | boolean | null | undefined;
 
@@ -697,7 +697,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
         case "TSNonNullExpression":
         case "TSNamespaceExportDeclaration":
         default:
-            console.warn(`No handler for "${n.type}"`);
+            console.warn(`No shaper for "${n.type}"`);
             return undefined;
     }
 };
