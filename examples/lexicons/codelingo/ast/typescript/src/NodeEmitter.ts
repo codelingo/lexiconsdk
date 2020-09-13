@@ -232,6 +232,19 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "ObjectExpression":
             return { namedChildren: { Properties: n.properties } };
 
+        case "ObjectMethod": {
+            const { kind, computed, generator, async } = n;
+            return {
+                props: { kind, computed, generator, async },
+                children: [n.body, n.returnType, n.typeParameters],
+                namedChildren: {
+                    Key: [n.key], /// XXX: maybe
+                    Parameters: n.params,
+                    Decorators: n.decorators,
+                },
+            };
+        }
+
         case "ObjectPattern":
             return {
                 children: [n.typeAnnotation],
@@ -319,6 +332,9 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "TSExportAssignment":
             return { children: [n.expression] };
 
+        case "TSExternalModuleReference":
+            return { children: [n.expression] };
+
         case "TSFunctionType":
             return {
                 children: [n.typeAnnotation, n.typeParameters],
@@ -373,11 +389,17 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
                 children: [n.key, n.typeAnnotation],
             };
 
+        case "TSTupleType":
+            return { children: n.elementTypes };
+
         case "TSTypeAnnotation":
             return { children: [n.typeAnnotation] };
 
         case "TSTypeParameterDeclaration":
             return { namedChildren: { Parameters: n.params } };
+
+        case "TSTypeQuery":
+            return { children: [n.exprName] };
 
         case "TSTypeReference":
             return { children: [n.typeName, n.typeParameters] };
@@ -421,9 +443,22 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
             };
         }
 
+        case "TSEnumMember":
+            return {
+                children: [n.id, n.initializer],
+                positional: true,
+            };
+
         case "TSExpressionWithTypeArguments":
             return { children: [n.expression, n.typeParameters] };
 
+        case "TSTypeOperator": {
+            const { operator } = n;
+            return {
+                props: { operator },
+                children: [n.typeAnnotation],
+            };
+        }
         case "TSIndexSignature": {
             const { readonly } = n;
             return {
@@ -506,6 +541,14 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "UnaryExpression":
             return { props: { prefix: n.prefix, operator: n.operator }, children: [n.argument] };
 
+        case "UpdateExpression": {
+            const { prefix, operator } = n;
+            return {
+                props: { operator, prefix },
+                children: [n.argument],
+            };
+        }
+
         case "VariableDeclaration":
             return {
                 props: { kind: n.kind, declare: n.declare },
@@ -537,9 +580,7 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "EmptyStatement":
         case "File":
         case "LabeledStatement":
-        case "ObjectMethod":
         case "ParenthesizedExpression":
-        case "UpdateExpression":
         case "WithStatement":
         case "AssignmentPattern":
         case "ClassExpression":
@@ -644,20 +685,15 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "TupleExpression":
         case "DecimalLiteral":
         case "TSConstructorType":
-        case "TSTypeQuery":
-        case "TSTupleType":
         case "TSOptionalType":
         case "TSRestType":
         case "TSNamedTupleMember":
         case "TSIntersectionType":
         case "TSConditionalType":
         case "TSInferType":
-        case "TSTypeOperator":
         case "TSIndexedAccessType":
         case "TSMappedType":
-        case "TSEnumMember":
         case "TSImportType":
-        case "TSExternalModuleReference":
         case "TSNonNullExpression":
         case "TSNamespaceExportDeclaration":
         default:
