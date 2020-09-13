@@ -1,9 +1,8 @@
 import fs from "fs";
 import path from "path";
-import ts from "typescript";
-import { KeyManager } from "./KeyManager";
+import { parseBabel } from "../babel/parser";
+import { KeyManager } from "./keys";
 import { AstNode, EmitterFn, NAMESPACE } from "./model";
-import { parseBabel } from "../babel/ParserBabel";
 import { makeProperty } from "./property";
 
 export function parseProject(trunkKey: string, baseDirStr: string, filepaths: string[] = [], emitter: EmitterFn) {

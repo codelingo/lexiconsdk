@@ -1,8 +1,8 @@
 import { Node } from "@babel/types";
-import { firstIfSame } from "./helpers";
+import { firstIfSame } from "./util";
 import { EmitInstructions } from "./model";
 
-export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
+export const shapeNode = (n: Node): EmitInstructions | undefined => {
     // console.warn(node.type);
     switch (n.type) {
         case "ArrayExpression":

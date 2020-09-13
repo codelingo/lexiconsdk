@@ -1,13 +1,13 @@
 import * as babelParser from "@babel/parser";
 import { File, Node } from "@babel/types";
 import path from "path";
-import { KeyManager } from "../common/KeyManager";
+import { KeyManager } from "../common/keys";
 import { AstNode, Dictionary, EmitterFn, NAMESPACE } from "../common/model";
 import { makeProperties } from "../common/property";
-import { makeCommonPropertiesBabel } from "./helpers";
+import { makeCommonPropertiesBabel } from "./util";
 import { EmitInstructions, isNesting } from "./model";
-import { shapeNodeForEmit } from "./NodeShaper";
-import { renameNode } from "./NodeNames";
+import { shapeNode } from "./shape";
+import { renameNode } from "./rename";
 
 const COMMON_PLUGINS: babelParser.ParserPlugin[] = [
     "decorators-legacy", // XXX: "decorators" plugin requires a "decoratorsBeforeExport" option -- which we don't know in advance
@@ -65,7 +65,7 @@ export class ParserBabel {
 
     public walk(sourceFile: File, parentKey: string) {
         const walkRecursively = (node: Node, parentKey: string) => {
-            const instructions = shapeNodeForEmit(node);
+            const instructions = shapeNode(node);
             if (instructions !== undefined) {
                 emit(node, parentKey, instructions);
             }
