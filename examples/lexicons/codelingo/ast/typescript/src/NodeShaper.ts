@@ -1,5 +1,6 @@
 import { Node, typeParameter } from "@babel/types";
 import { Dictionary } from "./model";
+import { parse } from "@babel/parser";
 
 type Primitive = string | number | boolean | null | undefined;
 
@@ -235,6 +236,67 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
         case "ImportDefaultSpecifier":
             return { children: [n.local] };
 
+        case "JSXAttribute":
+            return {
+                children: [n.name, n.value],
+                positional: true,
+            };
+
+        case "JSXClosingElement":
+            return {
+                children: [n.name],
+            };
+
+        case "JSXElement": {
+            const { selfClosing } = n;
+            return {
+                props: { selfClosing },
+                children: [n.openingElement, n.closingElement],
+                namedChildren: { Children: n.children },
+                positional: true,
+            };
+        }
+
+        case "JSXEmptyExpression":
+        case "JSXFragment":
+        case "JSXOpeningFragment":
+        case "JSXClosingFragment":
+            return {};
+
+        case "JSXExpressionContainer":
+        case "JSXSpreadChild":
+            return { children: [n.expression] };
+
+        case "JSXIdentifier":
+            return { props: { name: n.name } };
+
+        case "JSXMemberExpression":
+            return {
+                children: [n.object, n.property],
+                positional: true,
+            };
+
+        case "JSXNamespacedName":
+            return {
+                children: [n.namespace, n.name],
+                positional: true,
+            };
+
+        case "JSXOpeningElement": {
+            const { selfClosing } = n;
+            return {
+                props: { selfClosing },
+                children: [n.name, n.typeParameters],
+                namedChildren: { Attributes: n.attributes },
+            };
+        }
+
+        case "JSXSpreadAttribute":
+            return { children: [n.argument] };
+
+        case "JSXText":
+            return { props: { value: n.value } };
+
         case "LabeledStatement":
             return { children: [n.label, n.body] };
 
@@ -401,6 +463,9 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
                 children: [n.id, n.moduleReference],
             };
         }
+
+        case "TSImportType":
+            return { children: [n.argument, n.qualifier, n.typeParameters] };
 
         case "TSInterfaceDeclaration":
             return {
@@ -726,21 +791,6 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
         case "EnumNumberMember":
         case "EnumStringMember":
         case "EnumDefaultedMember":
-        case "JSXAttribute":
-        case "JSXClosingElement":
-        case "JSXElement":
-        case "JSXEmptyExpression":
-        case "JSXExpressionContainer":
-        case "JSXSpreadChild":
-        case "JSXIdentifier":
-        case "JSXMemberExpression":
-        case "JSXNamespacedName":
-        case "JSXOpeningElement":
-        case "JSXSpreadAttribute":
-        case "JSXText":
-        case "JSXFragment":
-        case "JSXOpeningFragment":
-        case "JSXClosingFragment":
         case "Placeholder":
         case "V8IntrinsicIdentifier":
         case "ArgumentPlaceholder":
@@ -759,7 +809,6 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
         case "DecimalLiteral":
         case "TSOptionalType":
         case "TSNamedTupleMember":
-        case "TSImportType":
         case "TSNonNullExpression":
         default:
             console.warn(`No shaper for "${n.type}"`);

@@ -74,6 +74,11 @@ export class Parser {
                 continue;
             }
 
+            // always skip node_modules :ew:
+            if (child === "node_modules") {
+                continue;
+            }
+
             if (this.parseDir(dirNode.key, childPath)) {
                 hasFiles = true;
             }
