@@ -42,7 +42,7 @@ export class AstNodeWalkerBabel {
     }
 
     public walk(sourceFile: File, parentKey: string) {
-        const emit = (node: Node, parentKey: string, { props, namedChildren, children, skipEmit }: EmitInstructions) => {
+        const emit = (node: Node, parentKey: string, { props, namedChildren, children, skipEmit, positional }: EmitInstructions) => {
             if (!skipEmit) {
                 const kind = node.type;
                 const properties = props
@@ -50,7 +50,7 @@ export class AstNodeWalkerBabel {
                     : { ...makeCommonProperties(this.filename, node), };
                 const astNode: AstNode = {
                     commonKind: kind,
-                    kind: { kind, namespace: KIND_NS, orderable: true },
+                    kind: { kind, namespace: KIND_NS, orderable: positional === true },
                     key: this.keyMan.getKey(),
                     parentKey: parentKey,
                     olderSiblings: [],
@@ -139,7 +139,7 @@ export class AstNodeWalkerBabel {
 
         const containerNode: AstNode = {
             commonKind: containerKind,
-            kind: { kind: containerKind, namespace: KIND_NS, orderable: true },
+            kind: { kind: containerKind, namespace: KIND_NS, orderable: true }, // always positional
             key: this.keyMan.getKey(),
             parentKey: parentKey,
             properties,
