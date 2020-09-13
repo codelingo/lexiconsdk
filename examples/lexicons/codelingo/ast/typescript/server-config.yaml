@@ -1,0 +1,34 @@
+# Command is some binary installed on the underlying container.
+# It's up to the lexicon author to ensure these commands are available by configuring the container in the dockerfile.
+
+endpoints:
+  parse-project:
+    command: node
+    args:
+      - '/dist/main.js'
+      - 'parse-project'
+      - '${trunkKey}'
+      - '${resourceDir}'
+  changed-files:
+    command: node
+    args:
+      - '/dist/main.js'
+      - 'parse-project'
+      - '${trunkKey}'
+      - '${resourceDir}'
+      - '${changedFiles}'  # has to be last arg as it will be a list ie. a.cs b.cs dir/c.cs
+  list-facts:
+    command: cat
+    args:
+      - '/server/list-facts.json'
+  list-setup-steps:
+    command: cat
+    args:
+      - '/server/setup-steps.json'
+  replace-properties:
+    command: node
+    args:
+      - '/dist/main.js'
+      - 'replace-properties'
+      - '${fact}'
+      - '${properties}'
