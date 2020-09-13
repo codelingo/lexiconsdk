@@ -1,36 +1,56 @@
-import { Node } from "@babel/types";
+import { Node, typeParameter } from "@babel/types";
 import { firstIfSame } from "./helpers";
-import { EmitInstructions } from "./model";
+import { EmitInstructions, EmitInstructions_v2 } from "./model";
 
-export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
+export const shapeNodeForEmit = (n: Node): EmitInstructions_v2 | undefined => {
     // console.warn(node.type);
     switch (n.type) {
         case "ArrayExpression":
-            return { namedChildren: { Elements: n.elements } };
+            return {
+                children: [
+                    { kind: "Elements", nodes: n.elements }, // optional
+                ],
+            };
 
         case "ArrayPattern":
             return {
-                children: [n.typeAnnotation],
-                namedChildren: { Elements: n.elements, Decorators: n.decorators },
+                children: [
+                    { kind: "Elements", nodes: n.elements },
+                    n.typeAnnotation, // optional
+                    { kind: "Decorators", nodes: n.decorators }, // optional
+                ],
             };
 
-        case "ArrowFunctionExpression":
+        case "ArrowFunctionExpression": {
+            const { async, expression, generator } = n;
             return {
-                props: { async: n.async, expression: n.expression, generator: n.generator },
-                children: [n.body, n.returnType, n.typeParameters],
-                namedChildren: { Parameters: n.params },
+                props: { async, expression, generator },
+                children: [
+                    { kind: "Parameters", nodes: n.params, keepWhenEmpty: true }, // optional
+                    n.body,
+                    n.returnType, // optional
+                    n.typeParameters, // optional
+                ],
             };
+        }
 
         case "AssignmentExpression":
             return {
                 props: { operator: n.operator },
-                namedChildren: { LHS: [n.left], RHS: [n.right] },
+                children: [
+                    { kind: "Left", nodes: n.left },
+                    { kind: "Right", nodes: n.right },
+                ],
             };
 
         case "AssignmentPattern":
             return {
-                children: [n.typeAnnotation],
-                namedChildren: { LHS: [n.left], RHS: [n.right], Decorators: n.decorators },
+                children: [
+                    { kind: "Left", nodes: n.left },
+                    { kind: "Right", nodes: n.right },
+                    { kind: "Decorators", nodes: n.decorators }, // optional
+                    n.typeAnnotation, // optional
+                ],
             };
 
         case "AwaitExpression":
@@ -39,53 +59,69 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
         case "BinaryExpression":
             return {
                 props: { operator: n.operator },
-                namedChildren: { LHS: [n.left], RHS: [n.right] },
+                children: [
+                    { kind: "Left", nodes: n.left },
+                    { kind: "Right", nodes: n.right },
+                ],
             };
 
         case "BooleanLiteral":
             return { props: { value: n.value } };
 
         case "BlockStatement":
-            return { children: n.body };
+            return { children: [...n.body] };
 
         case "BreakStatement":
         case "ContinueStatement":
             return { children: [n.label] };
 
-        case "CallExpression":
+        case "CallExpression": {
+            const { optional } = n;
             return {
-                props: { optional: n.optional },
-                children: [n.typeArguments, n.typeParameters, n.callee],
-                namedChildren: { Arguments: n.arguments },
+                props: { optional },
+                children: [
+                    n.callee,
+                    { kind: "Arguments", nodes: n.arguments, keepWhenEmpty: true }, // optional
+                    n.typeArguments, // optional
+                    n.typeParameters, // optional
+                ],
             };
+        }
 
         case "CatchClause":
-            return { children: [n.param, n.body] };
+            return { children: [n.param, n.body], positional: true };
 
         case "ClassBody":
-            return { children: n.body };
+            return { children: [...n.body] };
 
         case "ClassDeclaration": {
             const { abstract, declare } = n;
             return {
                 props: { abstract, declare },
-                namedChildren: {
-                    Decorators: n.decorators,
-                    Implements: n.implements,
-                    Super: [n.superClass, n.superTypeParameters],
-                },
-                children: [n.id, n.body, n.typeParameters, n.mixins /* Flow */],
+                children: [
+                    /// XXX: Consider the order of class children
+                    n.id,
+                    { kind: "Super", nodes: [n.superClass, n.superTypeParameters] }, // optional
+                    n.body,
+                    { kind: "Implements", nodes: n.implements }, // optional
+                    n.typeParameters, // optional
+                    n.mixins /* Flow */, // optional
+                    { kind: "Decorators", nodes: n.decorators }, // optional
+                ],
             };
         }
 
         case "ClassExpression": {
             return {
-                namedChildren: {
-                    Decorators: n.decorators,
-                    Implements: n.implements,
-                    Super: [n.superClass, n.superTypeParameters],
-                },
-                children: [n.id, n.body, n.typeParameters, n.mixins /* Flow */],
+                children: [
+                    n.id,
+                    { kind: "Super", nodes: [n.superClass, n.superTypeParameters] }, // optional
+                    n.body,
+                    { kind: "Implements", nodes: n.implements }, // optional
+                    n.typeParameters, // optional
+                    n.mixins /* Flow */, // optional
+                    { kind: "Decorators", nodes: n.decorators }, // optional
+                ],
             };
         }
 
@@ -93,25 +129,27 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             const { access, accessibility, kind, computed, static: static_, generator, async, abstract, optional } = n;
             return {
                 props: { access, accessibility, kind, computed, static: static_, generator, async, abstract, optional },
-                namedChildren: {
-                    Parameters: n.params,
-                    Decorators: n.decorators,
-                    Key: [n.key],
-                },
-                children: [n.body, n.typeParameters, n.returnType],
+                children: [
+                    { kind: "Key", nodes: n.key },
+                    { kind: "Parameters", nodes: n.params, keepWhenEmpty: true },
+                    n.body,
+                    n.returnType, // optional
+                    n.typeParameters, // optional
+                    { kind: "Decorators", nodes: n.decorators }, // optional
+                ],
             };
         }
 
         case "ClassProperty": {
-            const { computed, static: static_, abstract, accessibility, declare, definite, optional, readonly } = n;
+            const { computed, static: s_, abstract, accessibility, declare, definite, optional, readonly } = n;
             return {
-                props: { computed, static: static_, abstract, accessibility, declare, definite, optional, readonly },
-                namedChildren: {
-                    Key: [n.key],
-                    Value: [n.value],
-                    Decorators: n.decorators,
-                },
-                children: [n.typeAnnotation],
+                props: { computed, static: s_, abstract, accessibility, declare, definite, optional, readonly },
+                children: [
+                    { kind: "Key", nodes: n.key },
+                    { kind: "Value", nodes: n.value, keepWhenEmpty: true }, // optional
+                    n.typeAnnotation, // optional
+                    { kind: "Decorators", nodes: n.decorators }, // optional
+                ],
             };
         }
 
@@ -129,7 +167,12 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             return { children: [n.expression] };
 
         case "DeclareFunction":
-            return { children: [n.id, n.predicate] };
+            return {
+                children: [
+                    n.id,
+                    n.predicate, // optional
+                ],
+            };
 
         case "DoWhileStatement":
             return {
@@ -138,17 +181,22 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             };
 
         case "ExportAllDeclaration":
-            return { children: [n.source] };
+            return { children: [{ kind: "Source", nodes: n.source }] };
 
         case "ExportDefaultDeclaration":
-            return { children: [n.declaration] };
+            return { children: [{ kind: "Declaration", nodes: n.declaration, keepWhenEmpty: true }] };
 
-        case "ExportNamedDeclaration":
+        case "ExportNamedDeclaration": {
+            const { exportKind } = n;
             return {
-                props: { exportKind: n.exportKind },
-                children: [n.source, n.declaration],
-                namedChildren: { Specifiers: n.specifiers },
+                props: { exportKind },
+                children: [
+                    { kind: "Declaration", nodes: n.declaration /* optional */, keepWhenEmpty: true },
+                    { kind: "Specifiers", nodes: n.specifiers, keepWhenEmpty: true },
+                    { kind: "Source", nodes: n.source /* optional */, keepWhenEmpty: true },
+                ],
             };
+        }
 
         case "ExportSpecifier":
             // if the exported name for the import is the same as the local name
@@ -162,20 +210,35 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             const { await } = n;
             return {
                 props: { await },
-                namedChildren: { LHS: [n.left], RHS: [n.right] },
-                children: [n.body],
+                children: [{ kind: "Left", nodes: n.left }, { kind: "Right", nodes: n.right }, n.body],
             };
         }
 
         case "ForInStatement":
             return {
-                namedChildren: { LHS: [n.left], RHS: [n.right] },
-                children: [n.body],
+                children: [{ kind: "Left", nodes: n.left }, { kind: "Right", nodes: n.right }, n.body],
             };
 
         case "ForStatement":
             return {
-                children: [n.init, n.test, n.update, n.body],
+                children: [
+                    {
+                        kind: "Init",
+                        nodes: n.init, //optional
+                        keepWhenEmpty: true,
+                    },
+                    {
+                        kind: "Test",
+                        nodes: n.test, //optional
+                        keepWhenEmpty: true,
+                    },
+                    {
+                        kind: "Update",
+                        nodes: n.update, //optional
+                        keepWhenEmpty: true,
+                    },
+                    n.body,
+                ],
                 positional: true,
             };
 
@@ -183,8 +246,13 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             const { async, generator, declare } = n;
             return {
                 props: { async, generator, declare },
-                children: [n.id, n.body, n.typeParameters, n.returnType],
-                namedChildren: { Parameters: n.params },
+                children: [
+                    n.id,
+                    { kind: "Parameters", nodes: n.params },
+                    n.body,
+                    n.returnType, // optional
+                    n.typeParameters, // optional
+                ],
             };
         }
 
@@ -192,10 +260,13 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             const { async, generator } = n;
             return {
                 props: { async, generator },
-                children: [n.id, n.body, n.returnType, n.typeParameters],
-                namedChildren: {
-                    Parameters: n.params,
-                },
+                children: [
+                    n.id,
+                    { kind: "Parameters", nodes: n.params },
+                    n.body,
+                    n.returnType, // optional
+                    n.typeParameters, // optional
+                ],
             };
         }
 
@@ -203,15 +274,22 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             return { props: { name: n.name } };
 
         case "IfStatement":
-            /// XXX: do we need a better way to distinguish if from else?
-            return { children: [n.test, n.consequent, n.alternate] };
+            return {
+                children: [
+                    n.test,
+                    n.consequent,
+                    n.alternate, // optional
+                ],
+                positional: true,
+            };
 
         case "ImportDeclaration":
-            // XXX: Should node.source be named?
             return {
                 props: { importKind: n.importKind },
-                children: [n.source],
-                namedChildren: { Specifiers: n.specifiers },
+                children: [
+                    { kind: "Specifiers", nodes: n.specifiers },
+                    { kind: "Source", nodes: n.source },
+                ],
             };
 
         case "ImportSpecifier": {
@@ -239,8 +317,11 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             const { selfClosing } = n;
             return {
                 props: { selfClosing },
-                children: [n.openingElement, n.closingElement],
-                namedChildren: { Children: n.children },
+                children: [
+                    n.openingElement,
+                    n.closingElement, // optional
+                    { kind: "Children", nodes: n.children }, // optional
+                ],
                 positional: true,
             };
         }
@@ -274,8 +355,11 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             const { selfClosing } = n;
             return {
                 props: { selfClosing },
-                children: [n.name, n.typeParameters],
-                namedChildren: { Attributes: n.attributes },
+                children: [
+                    n.name,
+                    { kind: "Attributes", nodes: n.attributes }, // optional
+                    n.typeParameters, // optional
+                ],
             };
         }
 
@@ -291,7 +375,10 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
         case "LogicalExpression":
             return {
                 props: { operator: n.operator },
-                namedChildren: { LHS: [n.left], RHS: [n.right] },
+                children: [
+                    { kind: "Left", nodes: n.left },
+                    { kind: "Right", nodes: n.right },
+                ],
             };
 
         case "MemberExpression":
@@ -303,36 +390,50 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
         case "NewExpression":
             return {
                 props: { optional: n.optional },
-                children: [n.callee, n.typeParameters, n.typeArguments /* Flow */],
+                children: [
+                    n.callee,
+                    n.typeParameters, // optional
+                    n.typeArguments, // optional /* Flow */
+                ],
             };
 
         case "ObjectExpression":
-            return { namedChildren: { Properties: n.properties } };
+            return {
+                children: [{ kind: "Properties", nodes: n.properties, keepWhenEmpty: true }],
+            };
 
         case "ObjectMethod": {
             const { kind, computed, generator, async } = n;
             return {
                 props: { kind, computed, generator, async },
-                children: [n.body, n.returnType, n.typeParameters],
-                namedChildren: {
-                    Key: [n.key], /// XXX: maybe
-                    Parameters: n.params,
-                    Decorators: n.decorators,
-                },
+                children: [
+                    { kind: "Key", nodes: n.key },
+                    { kind: "Parameters", nodes: n.params, keepWhenEmpty: true }, // optional
+                    n.body,
+                    n.returnType, // optional
+                    n.typeParameters, // optional
+                    { kind: "Decorators", nodes: n.decorators }, // optional
+                ],
             };
         }
 
         case "ObjectPattern":
             return {
-                children: [n.typeAnnotation],
-                namedChildren: { Properties: n.properties, Decorators: n.decorators },
+                children: [
+                    { kind: "Properties", nodes: n.properties, keepWhenEmpty: true },
+                    n.typeAnnotation, // optional
+                    { kind: "Decorators", nodes: n.decorators }, // optional
+                ],
             };
 
         case "ObjectProperty":
             return {
                 props: { computed: n.computed, shorthand: n.shorthand },
-                children: [n.key, n.value],
-                namedChildren: { Decorators: n.decorators },
+                children: [
+                    n.key,
+                    n.value,
+                    { kind: "Decorators", nodes: n.decorators }, // optional
+                ],
                 positional: true,
             };
 
@@ -340,8 +441,13 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             const { optional } = n;
             return {
                 props: { optional },
-                children: [n.callee, n.typeArguments, n.typeParameters],
-                namedChildren: { Arguments: n.arguments },
+                children: [
+                    n.callee,
+                    { kind: "Arguments", nodes: n.arguments, keepWhenEmpty: true }, // optional
+                    n.typeArguments, // optional
+                    n.typeParameters, // optional
+                ],
+                positional: true,
             };
         }
 
@@ -359,8 +465,11 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
 
         case "RestElement":
             return {
-                children: [n.argument, n.typeAnnotation],
-                namedChildren: { Decorators: n.decorators },
+                children: [
+                    n.argument,
+                    n.typeAnnotation, // optional
+                    { kind: "Decorators", nodes: n.decorators }, // optional
+                ],
             };
 
         case "ReturnStatement":
@@ -378,34 +487,52 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             return { props: { pattern: n.pattern, flags: n.flags } };
 
         case "SequenceExpression":
-            return { namedChildren: { Expressions: n.expressions } };
+            return { children: [{ kind: "Expressions", nodes: n.expressions, keepWhenEmpty: true }] };
 
         case "SpreadElement":
             return { children: [n.argument] };
 
         case "SwitchCase":
-            return {
-                children: [n.test],
-                namedChildren: { Consequent: n.consequent },
-            };
+            return { children: [n.test, { kind: "Consequent", nodes: n.consequent }] };
 
         case "SwitchStatement":
             return {
-                children: [n.discriminant],
-                namedChildren: { Cases: n.cases },
+                children: [
+                    n.discriminant,
+                    {
+                        kind: "Cases",
+                        nodes: n.cases, // optional
+                        keepWhenEmpty: true,
+                    },
+                ],
             };
 
         case "TaggedTemplateExpression":
             return {
-                children: [n.tag, n.quasi, n.typeParameters],
+                children: [
+                    n.tag,
+                    n.quasi,
+                    n.typeParameters, // optional
+                ],
                 positional: true,
             };
 
         case "TemplateElement":
-            return { props: { value: n.value.raw, cooked: n.value.cooked, tail: n.tail } };
+            return {
+                props: {
+                    value: n.value.raw,
+                    cooked: n.value.cooked,
+                    tail: n.tail,
+                },
+            };
 
         case "TemplateLiteral":
-            return { namedChildren: { Quasis: n.quasis, Expressions: n.expressions } };
+            return {
+                children: [
+                    { kind: "Quasis", nodes: n.quasis },
+                    { kind: "Expressions", nodes: n.expressions },
+                ],
+            };
 
         case "ThrowStatement":
             return { children: [n.argument] };
@@ -420,7 +547,10 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             return { children: [n.expression, n.typeAnnotation] };
 
         case "TSConstructorType":
-            return { namedChildren: { Parameters: n.parameters }, children: [n.typeParameters, n.typeAnnotation] };
+            return {
+                namedChildren: { Parameters: n.parameters },
+                children: [n.typeParameters, n.typeAnnotation],
+            };
         case "TSEnumDeclaration": {
             const { const: const_, declare } = n;
             return {
@@ -459,13 +589,19 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
         case "TSInterfaceDeclaration":
             return {
                 children: [n.id, n.body],
-                namedChildren: { Extends: n.extends /*, Implements: node.implements, Mixins: node.mixins */ },
+                namedChildren: {
+                    Extends: n.extends /*, Implements: node.implements, Mixins: node.mixins */,
+                },
             };
 
         case "InterfaceDeclaration":
             return {
                 children: [n.id, n.body],
-                namedChildren: { Extends: n.extends, Implements: n.implements, Mixins: n.mixins },
+                namedChildren: {
+                    Extends: n.extends,
+                    Implements: n.implements,
+                    Mixins: n.mixins,
+                },
             };
 
         case "TSInterfaceBody":
@@ -487,7 +623,10 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
 
         case "TSParameterProperty": {
             const { accessibility, readonly } = n;
-            return { props: { accessibility, readonly }, children: [n.parameter] };
+            return {
+                props: { accessibility, readonly },
+                children: [n.parameter],
+            };
         }
 
         case "TSPropertySignature":
@@ -518,7 +657,9 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             return { children: [n.id] };
 
         case "TSConditionalType":
-            return { children: [n.checkType, n.extendsType, n.trueType, n.falseType] };
+            return {
+                children: [n.checkType, n.extendsType, n.trueType, n.falseType],
+            };
 
         case "TSConstructSignatureDeclaration":
             return {
@@ -540,7 +681,17 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
         case "TSDeclareMethod": {
             const { abstract, access, accessibility, async, computed, generator, kind, optional, static: static_ } = n;
             return {
-                props: { abstract, access, accessibility, async, computed, generator, kind, optional, static: static_ },
+                props: {
+                    abstract,
+                    access,
+                    accessibility,
+                    async,
+                    computed,
+                    generator,
+                    kind,
+                    optional,
+                    static: static_,
+                },
                 namedChildren: {
                     Decorators: n.decorators,
                     Key: [n.key],
@@ -610,7 +761,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             return { children: [n.typeAnnotation] };
 
         case "TSQualifiedName":
-            return { namedChildren: { LHS: [n.left], RHS: [n.right] } };
+            return { namedChildren: { left: [n.left], right: [n.right] } };
 
         case "TSStringKeyword":
         case "TSAnyKeyword":
@@ -671,7 +822,10 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             return { namedChildren: { Types: n.types } };
 
         case "UnaryExpression":
-            return { props: { prefix: n.prefix, operator: n.operator }, children: [n.argument] };
+            return {
+                props: { prefix: n.prefix, operator: n.operator },
+                children: [n.argument],
+            };
 
         case "UpdateExpression": {
             const { prefix, operator } = n;
