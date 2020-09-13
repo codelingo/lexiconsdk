@@ -1,18 +1,6 @@
-import { Node, typeParameter } from "@babel/types";
-import { Dictionary } from "../common/model";
-import { parse } from "@babel/parser";
-
-type Primitive = string | number | boolean | null | undefined;
-
-export interface EmitInstructions {
-    skipEmit?: boolean;
-    children?: Array<Node | null | undefined>;
-    namedChildren?: Dictionary<(Node | null)[] | null | undefined>;
-    props?: Dictionary<Primitive>;
-    positional?: true | undefined;
-}
-
-const firstIfSame = (a: Node, b: Node): Node[] => (a.start === b.start && a.end === b.end ? [a] : [a, b]);
+import { Node } from "@babel/types";
+import { firstIfSame } from "./helpers";
+import { EmitInstructions } from "./model";
 
 export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
     // console.warn(node.type);

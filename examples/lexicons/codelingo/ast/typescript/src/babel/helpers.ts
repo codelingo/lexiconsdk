@@ -1,15 +1,9 @@
 
 
-import { SourceLocation } from "@babel/types";
+import { SourceLocation, Node } from "@babel/types";
 import { Dictionary, Property } from "../common/model";
 
-interface BabelLikeNode {
-    loc: SourceLocation | null;
-    start: number | null;
-    end: number | null;
-}
-
-export const makeCommonPropertiesBabel = (filename: string, startNode: BabelLikeNode, endNode: BabelLikeNode = startNode): Dictionary<Property> => {
+export const makeCommonPropertiesBabel = (filename: string, startNode: Node, endNode: Node = startNode): Dictionary<Property> => {
     const { start } = startNode.loc!;
     const { end } = endNode.loc!;
 
@@ -23,3 +17,5 @@ export const makeCommonPropertiesBabel = (filename: string, startNode: BabelLike
         // end_offset: makeProperty("end_offset", endNode.end),
     };
 };
+
+export const firstIfSame = (a: Node, b: Node): Node[] => (a.start === b.start && a.end === b.end ? [a] : [a, b]);

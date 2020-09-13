@@ -1,3 +1,4 @@
 .idea/
 examples/lexicons/codelingo/ast/**/node_modules
 examples/lexicons/codelingo/ast/typescript/dist
+*.jsonp
