@@ -1,30 +1,13 @@
-import { Dictionary, Property } from "./model";
+
+
 import { SourceLocation } from "@babel/types";
+import { Dictionary, Property } from "../common/model";
 
 interface BabelLikeNode {
     loc: SourceLocation | null;
     start: number | null;
     end: number | null;
 }
-
-export function makeProperty(key: string, value: null | undefined | number | string | boolean): Property {
-    if (value === null || value === undefined) {
-        return { type: "null", value: "" };
-    }
-
-    return {
-        type: typeof value,
-        value: value.toString(),
-    };
-}
-
-export const makeProperties = (properties: Dictionary<string | number | boolean | null | undefined>): Dictionary<Property> => {
-    const props: Dictionary<Property> = {};
-    for (const key in properties) {
-        props[key] = makeProperty(key, properties[key]);
-    }
-    return props;
-};
 
 export const makeCommonPropertiesBabel = (filename: string, startNode: BabelLikeNode, endNode: BabelLikeNode = startNode): Dictionary<Property> => {
     const { start } = startNode.loc!;

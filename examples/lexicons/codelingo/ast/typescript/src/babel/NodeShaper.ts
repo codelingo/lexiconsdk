@@ -1,5 +1,5 @@
 import { Node, typeParameter } from "@babel/types";
-import { Dictionary } from "./model";
+import { Dictionary } from "../common/model";
 import { parse } from "@babel/parser";
 
 type Primitive = string | number | boolean | null | undefined;

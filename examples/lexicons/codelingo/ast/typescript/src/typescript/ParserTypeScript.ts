@@ -1,7 +1,7 @@
-import { KeyManager } from "./KeyManager";
+import { KeyManager } from "../common/KeyManager";
 import ts from "typescript";
-import { AstNode, EmitterFn, NAMESPACE } from "./Model";
-import { makeProperty } from "./property";
+import { AstNode, EmitterFn, NAMESPACE } from "../common/model";
+import { makeProperty } from "../common/property";
 
 export class AstNodeWalkerTypeScript {
     private readonly filename: string;

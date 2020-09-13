@@ -1,10 +1,11 @@
 import * as babelParser from "@babel/parser";
 import { File, Node } from "@babel/types";
 import path from "path";
-import { KeyManager } from "./KeyManager";
-import { AstNode, Dictionary, EmitterFn, NAMESPACE } from "./model";
+import { KeyManager } from "../common/KeyManager";
+import { AstNode, Dictionary, EmitterFn, NAMESPACE } from "../common/model";
 import { EmitInstructions, shapeNodeForEmit } from "./NodeShaper";
-import { makeCommonPropertiesBabel, makeProperties } from "./property";
+import { makeProperties } from "../common/property";
+import { makeCommonPropertiesBabel } from "./helpers";
 
 const COMMON_PLUGINS: babelParser.ParserPlugin[] = [
     "decorators-legacy", // XXX: "decorators" plugin requires a "decoratorsBeforeExport" option -- which we don't know in advance

@@ -3,8 +3,8 @@ import path from "path";
 import ts from "typescript";
 import { KeyManager } from "./KeyManager";
 import { AstNode, EmitterFn, NAMESPACE } from "./model";
-import { AstNodeWalkerTypeScript } from "./ParserTypeScript";
-import { parseBabel } from "./ParserBabel";
+import { AstNodeWalkerTypeScript } from "../typescript/ParserTypeScript";
+import { parseBabel } from "../babel/ParserBabel";
 import { makeProperty } from "./property";
 
 export function parseProject(trunkKey: string, baseDirStr: string, filepaths: string[] = [], emitter: EmitterFn) {

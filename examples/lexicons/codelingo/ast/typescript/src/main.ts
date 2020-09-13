@@ -1,5 +1,5 @@
-import { AstNode } from "./model";
-import { parseProject } from "./Parser";
+import { AstNode } from "./common/model";
+import { parseProject } from "./common/Parser";
 
 const emitNode = (node: AstNode) => console.log(JSON.stringify(node));
 
