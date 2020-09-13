@@ -3,7 +3,6 @@ import path from "path";
 import ts from "typescript";
 import { KeyManager } from "./KeyManager";
 import { AstNode, EmitterFn, NAMESPACE } from "./model";
-import { AstNodeWalkerTypeScript } from "../typescript/ParserTypeScript";
 import { parseBabel } from "../babel/ParserBabel";
 import { makeProperty } from "./property";
 
@@ -132,17 +131,9 @@ export class Parser {
         this.emit(fileNode);
 
         const code = fs.readFileSync(absFilePath, "utf8");
-
         parseBabel(relFilePath, code, fileNode.key, this.keyMan, this.emit)
-        // this.parseASTUsingTypeScript(relFilePath, code, fileNode);
 
         return true;
-    }
-
-    private parseASTUsingTypeScript(relFilePath: string, code: string, parentKey: string) {
-        const sourceFile = ts.createSourceFile(relFilePath, code, ts.ScriptTarget.Latest);
-        const nodeWalker = new AstNodeWalkerTypeScript(relFilePath, this.keyMan, this.emit);
-        nodeWalker.walk(sourceFile, parentKey);
     }
 }
 

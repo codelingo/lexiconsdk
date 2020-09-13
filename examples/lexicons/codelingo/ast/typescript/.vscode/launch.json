@@ -15,8 +15,8 @@
             "args": [
                 "parse-project",
                 "0_0",
-                "c:\\wf\\mrcrowl\\vscode-hg",
-                "./node_modules/@types/node/buffer.d.ts",
+                "c:\\wf\\mrcrowl\\vitefoolery",
+                // "./node_modules/@types/node/buffer.d.ts",
                 // "./src/commands.ts"
             ],
             "preLaunchTask": "tsc: build - tsconfig.json",
