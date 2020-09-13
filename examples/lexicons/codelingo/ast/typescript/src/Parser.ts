@@ -1,23 +1,10 @@
-import * as babelParser from "@babel/parser";
 import fs from "fs";
 import path from "path";
 import ts from "typescript";
-import { AstNode, makeProperty, Dictionary } from "./AstNode";
-import { AstNodeWalkerBabel } from "./AstNodeWalkerBabel";
-import { AstNodeWalkerTypeScript } from "./AstNodeWalkerTypeScript";
 import { KeyManager } from "./KeyManager";
-
-export const KIND_NS = "ts";
-export type EmitterFn = (node: AstNode) => void;
-const COMMON_PLUGINS: babelParser.ParserPlugin[] = ["decorators-legacy", "classProperties"];
-const EXT_PLUGINS: Dictionary<babelParser.ParserPlugin[]> = {
-    ".js": [...COMMON_PLUGINS],
-    ".jsx": ["jsx", ...COMMON_PLUGINS],
-    ".ts": ["typescript", ...COMMON_PLUGINS],
-    ".tsx": ["typescript", "jsx", ...COMMON_PLUGINS],
-
-    // XXX: "decorators" plugin requires a "decoratorsBeforeExport" option -- which we don't know
-};
+import { AstNode, EmitterFn, NAMESPACE, makeProperty } from "./model";
+import { AstNodeWalkerTypeScript } from "./ParserTypeScript";
+import { parseBabel } from "./ParserBabel";
 
 export function parseProject(trunkKey: string, baseDirStr: string, filepaths: string[] = [], emitter: EmitterFn) {
     const files: Set<string> = getFileSet(filepaths);
@@ -26,7 +13,7 @@ export function parseProject(trunkKey: string, baseDirStr: string, filepaths: st
 
     const projectNode: AstNode = {
         commonKind: "project",
-        kind: { kind: "project", namespace: KIND_NS, orderable: false },
+        kind: { kind: "project", namespace: NAMESPACE, orderable: false },
         parentKey: "",
         key: trunkKey,
         olderSiblings: [],
@@ -72,7 +59,7 @@ export class Parser {
 
         const dirNode: AstNode = {
             commonKind: "dir",
-            kind: { kind: "dir", namespace: KIND_NS, orderable: false },
+            kind: { kind: "dir", namespace: NAMESPACE, orderable: false },
             properties: { filename: makeProperty("filename", relFilePath) },
             key: this.keyMan.getKey(),
             parentKey: parentKey,
@@ -121,7 +108,7 @@ export class Parser {
 
         const fileNode: AstNode = {
             commonKind: "file",
-            kind: { kind: "file", namespace: KIND_NS, orderable: true },
+            kind: { kind: "file", namespace: NAMESPACE, orderable: true },
             key: this.keyMan.getKey(),
             parentKey: parentKey,
             olderSiblings: [],
@@ -140,27 +127,10 @@ export class Parser {
 
         const code = fs.readFileSync(absFilePath, "utf8");
 
-        this.parseASTUsingBabel(relFilePath, code, fileNode.key);
-
+        parseBabel(relFilePath, code, fileNode.key, this.keyMan, this.emit)
         // this.parseASTUsingTypeScript(relFilePath, code, fileNode);
 
         return true;
-    }
-
-    private parseASTUsingBabel(relFilePath: string, code: string, parentKey: string) {
-        const ext = path.extname(relFilePath);
-        const sourceFile = babelParser.parse(code, {
-            sourceType: "unambiguous",
-            plugins: EXT_PLUGINS[ext],
-            // be _very_ permissive
-            allowUndeclaredExports: true,
-            allowAwaitOutsideFunction: true,
-            allowImportExportEverywhere: true,
-            allowReturnOutsideFunction: true,
-            allowSuperOutsideMethod: true,
-        });
-        const nodeWalker = new AstNodeWalkerBabel(relFilePath, this.keyMan, this.emit);
-        nodeWalker.walk(sourceFile, parentKey);
     }
 
     private parseASTUsingTypeScript(relFilePath: string, code: string, parentKey: string) {

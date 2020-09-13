@@ -1,34 +1,39 @@
-import { KeyManager } from "./KeyManager";
-import { AstNode, makeProperty, Dictionary, Property } from "./AstNode";
-import { KIND_NS, EmitterFn } from "./Parser";
+import * as babelParser from "@babel/parser";
 import { File, Node } from "@babel/types";
-import { EmitInstructions, chooseHowToEmit } from "./NodeEmitter";
+import path from "path";
+import { KeyManager } from "./KeyManager";
+import { AstNode, Dictionary, EmitterFn, makeProperty, NAMESPACE, Property, makeCommonPropertiesBabel, makeProperties } from "./model";
+import { shapeNodeForEmit, EmitInstructions } from "./NodeShaper";
 
-type Loc = { line: number; column: number };
-const makeCommonProperties = (filename: string, startNode: Node, endNode: Node = startNode): Dictionary<Property> => {
-    const { start } = startNode.loc!;
-    const { end } = endNode.loc!;
+const COMMON_PLUGINS: babelParser.ParserPlugin[] = [
+    "decorators-legacy", // XXX: "decorators" plugin requires a "decoratorsBeforeExport" option -- which we don't know in advance
+    "classProperties",
+];
 
-    return {
-        filename: makeProperty("filename", filename),
-        start_column: makeProperty("start_column", start.column),
-        start_line: makeProperty("start_line", start.line),
-        start_offset: makeProperty("start_offset", startNode.start),
-        end_column: makeProperty("end_column", end.column),
-        end_line: makeProperty("end_line", end.line),
-        end_offset: makeProperty("end_offset", endNode.end),
-    };
+const EXT_PLUGINS: Dictionary<babelParser.ParserPlugin[]> = {
+    ".js": [...COMMON_PLUGINS],
+    ".jsx": ["jsx", ...COMMON_PLUGINS],
+    ".ts": ["typescript", ...COMMON_PLUGINS],
+    ".tsx": ["typescript", "jsx", ...COMMON_PLUGINS],
 };
 
-const makeProperties = (properties: Dictionary<string | number | boolean | null | undefined>): Dictionary<Property> => {
-    const props: Dictionary<Property> = {};
-    for (const key in properties) {
-        props[key] = makeProperty(key, properties[key]);
-    }
-    return props;
-};
+export function parseBabel(relativeFilePath: string, code: string, parentKey: string, keyMan: KeyManager, emitter: EmitterFn) {
+    const ext = path.extname(relativeFilePath);
+    const sourceFile = babelParser.parse(code, {
+        sourceType: "unambiguous",
+        plugins: EXT_PLUGINS[ext],
+        // be _very_ permissive
+        allowUndeclaredExports: true,
+        allowAwaitOutsideFunction: true,
+        allowImportExportEverywhere: true,
+        allowReturnOutsideFunction: true,
+        allowSuperOutsideMethod: true,
+    });
+    const nodeWalker = new ParserBabel(relativeFilePath, keyMan, emitter);
+    nodeWalker.walk(sourceFile, parentKey);
+}
 
-export class AstNodeWalkerBabel {
+export class ParserBabel {
     private readonly filename: string;
     private readonly keyMan: KeyManager;
     private readonly stack: AstNode[];
@@ -45,12 +50,10 @@ export class AstNodeWalkerBabel {
         const emit = (node: Node, parentKey: string, { props, namedChildren, children, skipEmit, positional }: EmitInstructions) => {
             if (!skipEmit) {
                 const kind = node.type;
-                const properties = props
-                    ? { ...makeCommonProperties(this.filename, node), ...makeProperties(props) }
-                    : { ...makeCommonProperties(this.filename, node), };
+                const properties = props ? { ...makeCommonPropertiesBabel(this.filename, node), ...makeProperties(props) } : { ...makeCommonPropertiesBabel(this.filename, node) };
                 const astNode: AstNode = {
                     commonKind: kind,
-                    kind: { kind, namespace: KIND_NS, orderable: positional === true },
+                    kind: { kind, namespace: NAMESPACE, orderable: positional === true },
                     key: this.keyMan.getKey(),
                     parentKey: parentKey,
                     olderSiblings: [],
@@ -89,7 +92,7 @@ export class AstNodeWalkerBabel {
         };
 
         const walkRecursively = (node: Node, parentKey: string) => {
-            const instructions = chooseHowToEmit(node);
+            const instructions = shapeNodeForEmit(node);
             if (instructions !== undefined) {
                 emit(node, parentKey, instructions);
             }
@@ -133,13 +136,13 @@ export class AstNodeWalkerBabel {
         const last = nodes[nodes.length - 1];
 
         const properties = {
-            ...makeCommonProperties(this.filename, first, last),
+            ...makeCommonPropertiesBabel(this.filename, first, last),
             // child_count: makeProperty("child_count", nodes.length), // TODO: Is child_count automatic??
         };
 
         const containerNode: AstNode = {
             commonKind: containerKind,
-            kind: { kind: containerKind, namespace: KIND_NS, orderable: true }, // always positional
+            kind: { kind: containerKind, namespace: NAMESPACE, orderable: true }, // always positional
             key: this.keyMan.getKey(),
             parentKey: parentKey,
             properties,

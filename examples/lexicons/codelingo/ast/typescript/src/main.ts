@@ -1,4 +1,4 @@
-import { AstNode } from "./AstNode";
+import { AstNode } from "./model";
 import { parseProject } from "./Parser";
 
 const printNode = (node: AstNode) => {}; //console.log(JSON.stringify(node));

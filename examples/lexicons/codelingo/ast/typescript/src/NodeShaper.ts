@@ -13,7 +13,7 @@ export interface EmitInstructions {
 
 const firstIfSame = (a: Node, b: Node): Node[] => (a.start === b.start && a.end === b.end ? [a] : [a, b]);
 
-export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
+export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
     // console.warn(node.type);
     switch (n.type) {
         case "ArrayExpression":
