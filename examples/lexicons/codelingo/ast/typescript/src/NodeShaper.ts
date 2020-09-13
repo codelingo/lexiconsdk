@@ -345,6 +345,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
                 props: { computed: n.computed, shorthand: n.shorthand },
                 children: [n.key, n.value],
                 namedChildren: { Decorators: n.decorators },
+                positional: true,
             };
 
         case "OptionalCallExpression": {

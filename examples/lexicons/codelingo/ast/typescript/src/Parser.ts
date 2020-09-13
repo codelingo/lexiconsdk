@@ -2,12 +2,13 @@ import fs from "fs";
 import path from "path";
 import ts from "typescript";
 import { KeyManager } from "./KeyManager";
-import { AstNode, EmitterFn, NAMESPACE, makeProperty } from "./model";
+import { AstNode, EmitterFn, NAMESPACE } from "./model";
 import { AstNodeWalkerTypeScript } from "./ParserTypeScript";
 import { parseBabel } from "./ParserBabel";
+import { makeProperty } from "./property";
 
 export function parseProject(trunkKey: string, baseDirStr: string, filepaths: string[] = [], emitter: EmitterFn) {
-    const files: Set<string> = getFileSet(filepaths);
+    const files: Set<string> = normaliseFilePaths(filepaths);
     const keyMan = new KeyManager(trunkKey);
     const parser = new Parser(baseDirStr, keyMan, files, emitter);
 
@@ -24,7 +25,7 @@ export function parseProject(trunkKey: string, baseDirStr: string, filepaths: st
     parser.parseDir(projectNode.key, baseDirStr);
 }
 
-function getFileSet(filepaths: string[]) {
+function normaliseFilePaths(filepaths: string[]) {
     const files = new Set<string>();
     if (filepaths.length === 0) {
         return files;
