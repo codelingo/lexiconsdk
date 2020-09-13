@@ -97,6 +97,9 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "Decorator":
             return { children: [n.expression] };
 
+        case "DeclareFunction":
+            return { children: [n.id, n.predicate] };
+
         case "ExportAllDeclaration":
             return { children: [n.source] };
 
@@ -262,8 +265,19 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
             };
         }
 
+        case "TSExportAssignment":
+            return { children: [n.expression] };
+
         case "TSFunctionType":
             return { namedChildren: { Parameters: n.parameters }, children: [n.typeAnnotation, n.typeParameters] };
+
+        case "TSImportEqualsDeclaration": {
+            const { isExport } = n;
+            return {
+                props: { isExport },
+                children: [n.id, n.moduleReference],
+            };
+        }
 
         case "TSInterfaceDeclaration":
             return { children: [n.id, n.body], namedChildren: { Extends: n.extends /*, Implements: node.implements, Mixins: node.mixins */ } };
@@ -273,6 +287,17 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
 
         case "TSInterfaceBody":
             return { skipEmit: true, children: n.body };
+
+        case "TSModuleBlock":
+            return { children: n.body };
+
+        case "TSModuleDeclaration": {
+            const { declare, global } = n;
+            return {
+                props: { declare, global },
+                children: [n.id, n.body],
+            };
+        }
 
         case "TSParameterProperty": {
             const { accessibility, readonly } = n;
@@ -300,6 +325,17 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "TSConstructSignatureDeclaration":
             return { children: [n.typeParameters, n.typeAnnotation], namedChildren: { Parameters: n.parameters } };
 
+        case "TSDeclareFunction": {
+            const { async, declare, generator } = n;
+            return {
+                props: { async, declare, generator },
+                children: [n.id, n.typeParameters, n.returnType],
+                namedChildren: {
+                    Parameters: n.params
+                }
+            };
+        }
+
         case "TSDeclareMethod": {
             const { abstract, access, accessibility, async, computed, generator, kind, optional, static: static_ } = n;
             return {
@@ -313,6 +349,11 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
             };
         }
 
+        case "TSExpressionWithTypeArguments":
+            return {
+                children: [n.expression, n.typeParameters],
+            };
+
         case "TSMethodSignature":
             return { props: { optional: n.optional, computed: n.computed }, children: [n.typeParameters, n.typeAnnotation] };
 
@@ -321,6 +362,9 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
 
         case "TSParenthesizedType":
             return { children: [n.typeAnnotation] };
+
+        case "TSQualifiedName":
+            return { namedChildren: { LHS: [n.left], RHS: [n.right] } };
 
         case "TSStringKeyword":
         case "TSAnyKeyword":
@@ -337,6 +381,14 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "TSThisType":
         case "ThisExpression":
             return {};
+
+        case "TSTypeAliasDeclaration": {
+            const { declare } = n;
+            return {
+                props: { declare },
+                children: [n.id, n.typeParameters, n.typeAnnotation],
+            };
+        }
 
         case "TSTypeAssertion":
             return { children: [n.typeAnnotation, n.expression] };
@@ -402,7 +454,6 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "NullLiteralTypeAnnotation":
         case "ClassImplements":
         case "DeclareClass":
-        case "DeclareFunction":
         case "DeclareInterface":
         case "DeclareModule":
         case "DeclareModuleExports":
@@ -487,8 +538,6 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "RecordExpression":
         case "TupleExpression":
         case "DecimalLiteral":
-        case "TSDeclareFunction":
-        case "TSQualifiedName":
         case "TSIndexSignature":
         case "TSConstructorType":
         case "TSTypePredicate":
@@ -504,16 +553,10 @@ export const chooseHowToEmit = (n: Node): EmitInstructions | undefined => {
         case "TSIndexedAccessType":
         case "TSMappedType":
         case "TSLiteralType":
-        case "TSExpressionWithTypeArguments":
-        case "TSTypeAliasDeclaration":
         case "TSEnumMember":
-        case "TSModuleDeclaration":
-        case "TSModuleBlock":
         case "TSImportType":
-        case "TSImportEqualsDeclaration":
         case "TSExternalModuleReference":
         case "TSNonNullExpression":
-        case "TSExportAssignment":
         case "TSNamespaceExportDeclaration":
         default:
             console.warn(`No handler for "${n.type}"`);
