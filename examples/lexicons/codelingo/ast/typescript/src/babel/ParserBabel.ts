@@ -7,6 +7,7 @@ import { makeProperties } from "../common/property";
 import { makeCommonPropertiesBabel } from "./helpers";
 import { EmitInstructions, isNesting } from "./model";
 import { shapeNodeForEmit } from "./NodeShaper";
+import { renameNode } from "./NodeNames";
 
 const COMMON_PLUGINS: babelParser.ParserPlugin[] = [
     "decorators-legacy", // XXX: "decorators" plugin requires a "decoratorsBeforeExport" option -- which we don't know in advance
@@ -72,7 +73,7 @@ export class ParserBabel {
 
         const emit = (node: Node, parentKey: string, { props, children, skipEmit, positional }: EmitInstructions) => {
             if (!skipEmit) {
-                const kind = node.type;
+                const kind = renameNode(node);
                 const properties = props
                     ? { ...makeCommonPropertiesBabel(this.filename, node), ...makeProperties(props) }
                     : { ...makeCommonPropertiesBabel(this.filename, node) };

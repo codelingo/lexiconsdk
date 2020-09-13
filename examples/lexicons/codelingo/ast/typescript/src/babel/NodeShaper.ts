@@ -8,16 +8,16 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
         case "ArrayExpression":
             return {
                 children: [
-                    { kind: "Elements", nodes: n.elements }, // optional
+                    { kind: "elems", nodes: n.elements }, // optional
                 ],
             };
 
         case "ArrayPattern":
             return {
                 children: [
-                    { kind: "Elements", nodes: n.elements },
+                    { kind: "elems", nodes: n.elements },
                     n.typeAnnotation, // optional
-                    { kind: "Decorators", nodes: n.decorators }, // optional
+                    { kind: "decors", nodes: n.decorators }, // optional
                 ],
             };
 
@@ -26,7 +26,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             return {
                 props: { async, expression, generator },
                 children: [
-                    { kind: "Parameters", nodes: n.params, keepWhenEmpty: true }, // optional
+                    { kind: "params", nodes: n.params, keepWhenEmpty: true }, // optional
                     n.body,
                     n.returnType, // optional
                     n.typeParameters, // optional
@@ -38,17 +38,17 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             return {
                 props: { operator: n.operator },
                 children: [
-                    { kind: "Left", nodes: [n.left] },
-                    { kind: "Right", nodes: [n.right] },
+                    { kind: "left", nodes: [n.left] },
+                    { kind: "right", nodes: [n.right] },
                 ],
             };
 
         case "AssignmentPattern":
             return {
                 children: [
-                    { kind: "Left", nodes: [n.left] },
-                    { kind: "Right", nodes: [n.right] },
-                    { kind: "Decorators", nodes: n.decorators }, // optional
+                    { kind: "left", nodes: [n.left] },
+                    { kind: "right", nodes: [n.right] },
+                    { kind: "decors", nodes: n.decorators }, // optional
                     n.typeAnnotation, // optional
                 ],
             };
@@ -63,8 +63,8 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             return {
                 props: { operator: n.operator },
                 children: [
-                    { kind: "Left", nodes: [n.left] },
-                    { kind: "Right", nodes: [n.right] },
+                    { kind: "left", nodes: [n.left] },
+                    { kind: "right", nodes: [n.right] },
                 ],
             };
 
@@ -84,7 +84,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
                 props: { optional },
                 children: [
                     n.callee,
-                    { kind: "Arguments", nodes: n.arguments, keepWhenEmpty: true }, // optional
+                    { kind: "args", nodes: n.arguments, keepWhenEmpty: true }, // optional
                     n.typeArguments, // optional
                     n.typeParameters, // optional
                 ],
@@ -104,12 +104,12 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
                 children: [
                     /// XXX: Consider the order of class children
                     n.id,
-                    { kind: "Super", nodes: [n.superClass, n.superTypeParameters] }, // optional
+                    { kind: "super", nodes: [n.superClass, n.superTypeParameters] }, // optional
                     n.body,
-                    { kind: "Implements", nodes: n.implements }, // optional
+                    { kind: "impl", nodes: n.implements }, // optional
                     n.typeParameters, // optional
                     n.mixins /* Flow */, // optional
-                    { kind: "Decorators", nodes: n.decorators }, // optional
+                    { kind: "decors", nodes: n.decorators }, // optional
                 ],
             };
         }
@@ -118,12 +118,12 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             return {
                 children: [
                     n.id,
-                    { kind: "Super", nodes: [n.superClass, n.superTypeParameters] }, // optional
+                    { kind: "super", nodes: [n.superClass, n.superTypeParameters] }, // optional
                     n.body,
-                    { kind: "Implements", nodes: n.implements }, // optional
+                    { kind: "impl", nodes: n.implements }, // optional
                     n.typeParameters, // optional
                     n.mixins /* Flow */, // optional
-                    { kind: "Decorators", nodes: n.decorators }, // optional
+                    { kind: "decors", nodes: n.decorators }, // optional
                 ],
             };
         }
@@ -133,12 +133,12 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             return {
                 props: { access, accessibility, kind, computed, static: static_, generator, async, abstract, optional },
                 children: [
-                    { kind: "Key", nodes: [n.key] },
-                    { kind: "Parameters", nodes: n.params, keepWhenEmpty: true },
+                    { kind: "key", nodes: [n.key] },
+                    { kind: "params", nodes: n.params, keepWhenEmpty: true },
                     n.body,
                     n.returnType, // optional
                     n.typeParameters, // optional
-                    { kind: "Decorators", nodes: n.decorators }, // optional
+                    { kind: "decors", nodes: n.decorators }, // optional
                 ],
             };
         }
@@ -148,10 +148,10 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             return {
                 props: { computed, static: s_, abstract, accessibility, declare, definite, optional, readonly },
                 children: [
-                    { kind: "Key", nodes: [n.key] },
-                    { kind: "Value", nodes: [n.value], keepWhenEmpty: true }, // optional
+                    { kind: "key", nodes: [n.key] },
+                    { kind: "value", nodes: [n.value], keepWhenEmpty: true }, // optional
                     n.typeAnnotation, // optional
-                    { kind: "Decorators", nodes: n.decorators }, // optional
+                    { kind: "decors", nodes: n.decorators }, // optional
                 ],
             };
         }
@@ -196,19 +196,19 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             };
 
         case "ExportAllDeclaration":
-            return { children: [{ kind: "Source", nodes: [n.source] }] };
+            return { children: [{ kind: "source", nodes: [n.source] }] };
 
         case "ExportDefaultDeclaration":
-            return { children: [{ kind: "Declaration", nodes: [n.declaration], keepWhenEmpty: true }] };
+            return { children: [{ kind: "decls", nodes: [n.declaration], keepWhenEmpty: true }] };
 
         case "ExportNamedDeclaration": {
             const { exportKind } = n;
             return {
                 props: { exportKind },
                 children: [
-                    { kind: "Declaration", nodes: [n.declaration] /* optional */, keepWhenEmpty: true },
-                    { kind: "Specifiers", nodes: n.specifiers, keepWhenEmpty: true },
-                    { kind: "Source", nodes: [n.source] /* optional */, keepWhenEmpty: true },
+                    { kind: "decls", nodes: [n.declaration] /* optional */, keepWhenEmpty: true },
+                    { kind: "specs", nodes: n.specifiers, keepWhenEmpty: true },
+                    { kind: "source", nodes: [n.source] /* optional */, keepWhenEmpty: true },
                 ],
             };
         }
@@ -225,30 +225,30 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             const { await } = n;
             return {
                 props: { await },
-                children: [{ kind: "Left", nodes: [n.left] }, { kind: "Right", nodes: [n.right] }, n.body],
+                children: [{ kind: "left", nodes: [n.left] }, { kind: "right", nodes: [n.right] }, n.body],
             };
         }
 
         case "ForInStatement":
             return {
-                children: [{ kind: "Left", nodes: [n.left] }, { kind: "Right", nodes: [n.right] }, n.body],
+                children: [{ kind: "left", nodes: [n.left] }, { kind: "right", nodes: [n.right] }, n.body],
             };
 
         case "ForStatement":
             return {
                 children: [
                     {
-                        kind: "Init",
+                        kind: "init",
                         nodes: [n.init], //optional
                         keepWhenEmpty: true,
                     },
                     {
-                        kind: "Test",
+                        kind: "test",
                         nodes: [n.test], //optional
                         keepWhenEmpty: true,
                     },
                     {
-                        kind: "Update",
+                        kind: "upd",
                         nodes: [n.update], //optional
                         keepWhenEmpty: true,
                     },
@@ -263,7 +263,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
                 props: { async, generator, declare },
                 children: [
                     n.id,
-                    { kind: "Parameters", nodes: n.params },
+                    { kind: "params", nodes: n.params },
                     n.body,
                     n.returnType, // optional
                     n.typeParameters, // optional
@@ -277,7 +277,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
                 props: { async, generator },
                 children: [
                     n.id,
-                    { kind: "Parameters", nodes: n.params },
+                    { kind: "params", nodes: n.params },
                     n.body,
                     n.returnType, // optional
                     n.typeParameters, // optional
@@ -302,8 +302,8 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             return {
                 props: { importKind: n.importKind },
                 children: [
-                    { kind: "Specifiers", nodes: n.specifiers },
-                    { kind: "Source", nodes: [n.source] },
+                    { kind: "specs", nodes: n.specifiers },
+                    { kind: "source", nodes: [n.source] },
                 ],
             };
 
@@ -338,7 +338,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
                 children: [
                     n.openingElement,
                     n.closingElement, // optional
-                    { kind: "Children", nodes: n.children }, // optional
+                    { kind: "children", nodes: n.children }, // optional
                 ],
                 positional: true,
             };
@@ -375,7 +375,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
                 props: { selfClosing },
                 children: [
                     n.name,
-                    { kind: "Attributes", nodes: n.attributes }, // optional
+                    { kind: "attrs", nodes: n.attributes }, // optional
                     n.typeParameters, // optional
                 ],
             };
@@ -394,8 +394,8 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             return {
                 props: { operator: n.operator },
                 children: [
-                    { kind: "Left", nodes: [n.left] },
-                    { kind: "Right", nodes: [n.right] },
+                    { kind: "left", nodes: [n.left] },
+                    { kind: "right", nodes: [n.right] },
                 ],
             };
 
@@ -417,7 +417,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
 
         case "ObjectExpression":
             return {
-                children: [{ kind: "Properties", nodes: n.properties, keepWhenEmpty: true }],
+                children: [{ kind: "props", nodes: n.properties, keepWhenEmpty: true }],
             };
 
         case "ObjectMethod": {
@@ -425,12 +425,12 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             return {
                 props: { kind, computed, generator, async },
                 children: [
-                    { kind: "Key", nodes: [n.key] },
-                    { kind: "Parameters", nodes: n.params, keepWhenEmpty: true }, // optional
+                    { kind: "key", nodes: [n.key] },
+                    { kind: "params", nodes: n.params, keepWhenEmpty: true }, // optional
                     n.body,
                     n.returnType, // optional
                     n.typeParameters, // optional
-                    { kind: "Decorators", nodes: n.decorators }, // optional
+                    { kind: "decors", nodes: n.decorators }, // optional
                 ],
             };
         }
@@ -438,9 +438,9 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
         case "ObjectPattern":
             return {
                 children: [
-                    { kind: "Properties", nodes: n.properties, keepWhenEmpty: true },
+                    { kind: "props", nodes: n.properties, keepWhenEmpty: true },
                     n.typeAnnotation, // optional
-                    { kind: "Decorators", nodes: n.decorators }, // optional
+                    { kind: "decors", nodes: n.decorators }, // optional
                 ],
             };
 
@@ -450,7 +450,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
                 children: [
                     n.key,
                     n.value,
-                    { kind: "Decorators", nodes: n.decorators }, // optional
+                    { kind: "decors", nodes: n.decorators }, // optional
                 ],
                 positional: true,
             };
@@ -461,7 +461,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
                 props: { optional },
                 children: [
                     n.callee,
-                    { kind: "Arguments", nodes: n.arguments, keepWhenEmpty: true }, // optional
+                    { kind: "args", nodes: n.arguments, keepWhenEmpty: true }, // optional
                     n.typeArguments, // optional
                     n.typeParameters, // optional
                 ],
@@ -486,7 +486,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
                 children: [
                     n.argument,
                     n.typeAnnotation, // optional
-                    { kind: "Decorators", nodes: n.decorators }, // optional
+                    { kind: "decors", nodes: n.decorators }, // optional
                 ],
             };
 
@@ -505,20 +505,20 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             return { props: { pattern: n.pattern, flags: n.flags } };
 
         case "SequenceExpression":
-            return { children: [{ kind: "Expressions", nodes: n.expressions, keepWhenEmpty: true }] };
+            return { children: [{ kind: "exprs", nodes: n.expressions, keepWhenEmpty: true }] };
 
         case "SpreadElement":
             return { children: [n.argument] };
 
         case "SwitchCase":
-            return { children: [n.test, { kind: "Consequent", nodes: n.consequent }] };
+            return { children: [n.test, { kind: "consq", nodes: n.consequent }] };
 
         case "SwitchStatement":
             return {
                 children: [
                     n.discriminant,
                     {
-                        kind: "Cases",
+                        kind: "cases",
                         nodes: n.cases, // optional
                         keepWhenEmpty: true,
                     },
@@ -547,8 +547,8 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
         case "TemplateLiteral":
             return {
                 children: [
-                    { kind: "Quasis", nodes: n.quasis, keepWhenEmpty: true },
-                    { kind: "Expressions", nodes: n.expressions, keepWhenEmpty: true },
+                    { kind: "quasis", nodes: n.quasis, keepWhenEmpty: true },
+                    { kind: "exprs", nodes: n.expressions, keepWhenEmpty: true },
                 ],
             };
 
@@ -574,7 +574,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
         case "TSConstructorType":
             return {
                 children: [
-                    { kind: "Parameters", nodes: n.parameters },
+                    { kind: "params", nodes: n.parameters },
                     n.typeAnnotation, // optional
                     n.typeParameters, // optional
                 ],
@@ -586,7 +586,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
                 props: { const: const_, declare },
                 children: [
                     n.id,
-                    { kind: "Members", nodes: n.members, keepWhenEmpty: true },
+                    { kind: "members", nodes: n.members, keepWhenEmpty: true },
                     n.initializer, // optional
                 ],
             };
@@ -600,11 +600,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
 
         case "TSFunctionType":
             return {
-                children: [
-                    { kind: "Parameters", nodes: n.parameters, keepWhenEmpty: true },
-                    n.typeAnnotation,
-                    n.typeParameters,
-                ],
+                children: [{ kind: "params", nodes: n.parameters, keepWhenEmpty: true }, n.typeAnnotation, n.typeParameters],
             };
 
         case "TSImportEqualsDeclaration": {
@@ -630,7 +626,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
                     n.id,
                     n.body,
                     n.typeParameters, // optional
-                    { kind: "Extends", nodes: n.extends }, // optional
+                    { kind: "extends", nodes: n.extends }, // optional
                 ],
             };
 
@@ -640,9 +636,9 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
                     n.id,
                     n.body,
                     n.typeParameters, // optional
-                    { kind: "Extends", nodes: n.extends }, // optional
-                    { kind: "Implements", nodes: n.implements }, // optional
-                    { kind: "Mixins", nodes: n.mixins }, // optional
+                    { kind: "extends", nodes: n.extends }, // optional
+                    { kind: "impls", nodes: n.implements }, // optional
+                    { kind: "mixins", nodes: n.mixins }, // optional
                 ],
             };
 
@@ -675,8 +671,8 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             return {
                 props: { computed: n.computed },
                 children: [
-                    { kind: "Key", nodes: [n.key] },
-                    { kind: "Initializer", nodes: [n.initializer] }, // optional
+                    { kind: "key", nodes: [n.key] },
+                    { kind: "init", nodes: [n.initializer] }, // optional
                     n.typeAnnotation, // optional
                 ],
             };
@@ -685,7 +681,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             return { children: n.elementTypes };
 
         case "TSTypeParameterDeclaration":
-            return { children: [{ kind: "Parameters", nodes: n.params }] };
+            return { children: [{ kind: "params", nodes: n.params }] };
 
         case "TSTypeQuery":
             return { children: [n.exprName] };
@@ -702,7 +698,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
         case "TSConstructSignatureDeclaration":
             return {
                 children: [
-                    { kind: "Parameters", nodes: n.parameters },
+                    { kind: "params", nodes: n.parameters },
                     n.typeAnnotation, // optional
                     n.typeParameters, // optional
                 ],
@@ -722,7 +718,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
                 props: { async, declare, generator },
                 children: [
                     n.id,
-                    { kind: "Parameters", nodes: n.params, keepWhenEmpty: true },
+                    { kind: "params", nodes: n.params, keepWhenEmpty: true },
                     n.returnType, // optional
                     n.typeParameters, // optional
                 ],
@@ -744,11 +740,11 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
                     static: static_,
                 },
                 children: [
-                    { kind: "Key", nodes: [n.key] },
-                    { kind: "Parameters", nodes: n.params, keepWhenEmpty: true },
+                    { kind: "key", nodes: [n.key] },
+                    { kind: "params", nodes: n.params, keepWhenEmpty: true },
                     n.returnType, // optional
                     n.typeParameters, // optional
-                    { kind: "Decorators", nodes: n.decorators }, // optional
+                    { kind: "decors", nodes: n.decorators }, // optional
                 ],
             };
         }
@@ -774,7 +770,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
             return {
                 props: { readonly },
                 children: [
-                    { kind: "Parameters", nodes: n.parameters, keepWhenEmpty: true },
+                    { kind: "params", nodes: n.parameters, keepWhenEmpty: true },
                     n.typeAnnotation, // optional
                 ],
             };
@@ -826,8 +822,8 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
         case "TSQualifiedName":
             return {
                 children: [
-                    { kind: "Left", nodes: [n.left] },
-                    { kind: "Right", nodes: [n.right] },
+                    { kind: "left", nodes: [n.left] },
+                    { kind: "right", nodes: [n.right] },
                 ],
             };
 
@@ -867,7 +863,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
 
         case "TSTypeLiteral":
             // XXX: Should this be un-nested? i.e. `{ children: n.members }`
-            return { children: [{ kind: "Members", nodes: n.members }] };
+            return { children: [{ kind: "members", nodes: n.members }] };
 
         case "TSTypeParameter": {
             const { name } = n;
@@ -882,7 +878,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
         }
 
         case "TSTypeParameterInstantiation":
-            return { children: [{ kind: "Parameters", nodes: n.params }] };
+            return { children: [{ kind: "params", nodes: n.params }] };
 
         case "TSTypePredicate": {
             const { asserts } = n;
@@ -897,7 +893,7 @@ export const shapeNodeForEmit = (n: Node): EmitInstructions | undefined => {
         }
 
         case "TSUnionType":
-            return { children: [{ kind: "Types", nodes: n.types }] };
+            return { children: [{ kind: "types", nodes: n.types }] };
 
         case "UnaryExpression":
             return {
